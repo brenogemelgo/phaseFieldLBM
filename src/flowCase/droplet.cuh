@@ -33,14 +33,14 @@ namespace LBM
     class droplet : private flowCase
     {
     public:
-        __host__ __device__ [[nodiscard]] inline consteval droplet(){};
+        __device__ __host__ [[nodiscard]] inline consteval droplet(){};
 
-        __host__ __device__ [[nodiscard]] static inline consteval bool droplet_case() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval bool droplet_case() noexcept
         {
             return true;
         }
 
-        __host__ __device__ [[nodiscard]] static inline consteval bool jet_case() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval bool jet_case() noexcept
         {
             return false;
         }

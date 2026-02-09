@@ -27,6 +27,7 @@ Source files
 #define MANAGER_CUH
 
 #include "derivedFields/registry.cuh"
+#include "fieldAllocate/fieldAllocate.cuh"
 #include "cuda/utils.cuh"
 
 namespace Derived
@@ -55,34 +56,29 @@ namespace Derived
         {
             attach(d);
 
-            constexpr size_t NCELLS =
-                static_cast<size_t>(mesh::nx) *
-                static_cast<size_t>(mesh::ny) *
-                static_cast<size_t>(mesh::nz);
+            constexpr size_t S_BYTES = host::bytesScalarGrid3D();
 
-            constexpr size_t SIZE = NCELLS * sizeof(scalar_t);
-
-            static_assert(NCELLS > 0, "Empty grid?");
-            static_assert(SIZE / sizeof(scalar_t) == NCELLS, "SIZE overflow");
+            host::FieldAllocate A;
+            A.resetByteCounter();
 
 #if TIME_AVERAGE
             if (Selection::anyEnabled(TimeAverage::fields))
             {
                 if (Selection::enabledName("avg_phi"))
                 {
-                    mallocZero_(d.avg_phi, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_phi", &LBMFields::avg_phi, S_BYTES, true});
                 }
                 if (Selection::enabledName("avg_ux"))
                 {
-                    mallocZero_(d.avg_ux, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_ux", &LBMFields::avg_ux, S_BYTES, true});
                 }
                 if (Selection::enabledName("avg_uy"))
                 {
-                    mallocZero_(d.avg_uy, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_uy", &LBMFields::avg_uy, S_BYTES, true});
                 }
                 if (Selection::enabledName("avg_uz"))
                 {
-                    mallocZero_(d.avg_uz, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_uz", &LBMFields::avg_uz, S_BYTES, true});
                 }
             }
 #endif
@@ -92,27 +88,27 @@ namespace Derived
             {
                 if (Selection::enabledName("avg_uxux"))
                 {
-                    mallocZero_(d.avg_uxux, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_uxux", &LBMFields::avg_uxux, S_BYTES, true});
                 }
                 if (Selection::enabledName("avg_uyuy"))
                 {
-                    mallocZero_(d.avg_uyuy, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_uyuy", &LBMFields::avg_uyuy, S_BYTES, true});
                 }
                 if (Selection::enabledName("avg_uzuz"))
                 {
-                    mallocZero_(d.avg_uzuz, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_uzuz", &LBMFields::avg_uzuz, S_BYTES, true});
                 }
                 if (Selection::enabledName("avg_uxuy"))
                 {
-                    mallocZero_(d.avg_uxuy, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_uxuy", &LBMFields::avg_uxuy, S_BYTES, true});
                 }
                 if (Selection::enabledName("avg_uxuz"))
                 {
-                    mallocZero_(d.avg_uxuz, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_uxuz", &LBMFields::avg_uxuz, S_BYTES, true});
                 }
                 if (Selection::enabledName("avg_uyuz"))
                 {
-                    mallocZero_(d.avg_uyuz, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"avg_uyuz", &LBMFields::avg_uyuz, S_BYTES, true});
                 }
             }
 #endif
@@ -122,19 +118,19 @@ namespace Derived
             {
                 if (Selection::enabledName("vort_x"))
                 {
-                    mallocZero_(d.vort_x, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"vort_x", &LBMFields::vort_x, S_BYTES, true});
                 }
                 if (Selection::enabledName("vort_y"))
                 {
-                    mallocZero_(d.vort_y, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"vort_y", &LBMFields::vort_y, S_BYTES, true});
                 }
                 if (Selection::enabledName("vort_z"))
                 {
-                    mallocZero_(d.vort_z, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"vort_z", &LBMFields::vort_z, S_BYTES, true});
                 }
                 if (Selection::enabledName("vort_mag"))
                 {
-                    mallocZero_(d.vort_mag, SIZE);
+                    A.alloc(d, host::FieldDescription<scalar_t>{"vort_mag", &LBMFields::vort_mag, S_BYTES, true});
                 }
             }
 #endif
@@ -142,7 +138,10 @@ namespace Derived
 #if PASSIVE_SCALAR
             if (Selection::anyEnabled(PassiveScalar::fields))
             {
-                mallocZero_(d.c, SIZE);
+                if (Selection::enabledName("c"))
+                {
+                    A.alloc(d, host::FieldDescription<scalar_t>{"c", &LBMFields::c, S_BYTES, true});
+                }
             }
 #endif
 
@@ -151,17 +150,6 @@ namespace Derived
 
     private:
         LBMFields *attached_ = nullptr;
-
-        __host__ static inline void mallocZero_(scalar_t *&ptr, const size_t bytes)
-        {
-            if (ptr != nullptr)
-            {
-                return;
-            }
-
-            checkCudaErrorsOutline(cudaMalloc(&ptr, bytes));
-            checkCudaErrorsOutline(cudaMemset(ptr, 0, bytes));
-        }
     };
 }
 

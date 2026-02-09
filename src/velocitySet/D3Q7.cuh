@@ -33,35 +33,35 @@ namespace LBM
     class D3Q7 : private velocitySet
     {
     public:
-        __host__ __device__ [[nodiscard]] inline consteval D3Q7(){};
+        __device__ __host__ [[nodiscard]] inline consteval D3Q7(){};
 
-        __host__ __device__ [[nodiscard]] static inline consteval label_t Q() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval label_t Q() noexcept
         {
             return static_cast<label_t>(Q_);
         }
 
-        __host__ __device__ [[nodiscard]] static inline consteval scalar_t as2() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval scalar_t as2() noexcept
         {
             return static_cast<scalar_t>(4);
         }
 
-        __host__ __device__ [[nodiscard]] static inline consteval scalar_t cs2() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval scalar_t cs2() noexcept
         {
             return static_cast<scalar_t>(static_cast<double>(1) / static_cast<double>(4));
         }
 
-        __host__ __device__ [[nodiscard]] static inline consteval scalar_t w_0() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval scalar_t w_0() noexcept
         {
             return static_cast<scalar_t>(static_cast<double>(1) / static_cast<double>(4));
         }
 
-        __host__ __device__ [[nodiscard]] static inline consteval scalar_t w_1() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval scalar_t w_1() noexcept
         {
             return static_cast<scalar_t>(static_cast<double>(1) / static_cast<double>(8));
         }
 
         template <label_t Q>
-        __host__ __device__ [[nodiscard]] static inline consteval scalar_t w() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval scalar_t w() noexcept
         {
             if constexpr (Q == 0)
             {
@@ -74,7 +74,7 @@ namespace LBM
         }
 
         template <label_t Q>
-        __host__ __device__ [[nodiscard]] static inline consteval int cx() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval int cx() noexcept
         {
             if constexpr (Q == 1)
             {
@@ -91,7 +91,7 @@ namespace LBM
         }
 
         template <label_t Q>
-        __host__ __device__ [[nodiscard]] static inline consteval int cy() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval int cy() noexcept
         {
             if constexpr (Q == 3)
             {
@@ -108,7 +108,7 @@ namespace LBM
         }
 
         template <label_t Q>
-        __host__ __device__ [[nodiscard]] static inline consteval int cz() noexcept
+        __device__ __host__ [[nodiscard]] static inline consteval int cz() noexcept
         {
             if constexpr (Q == 5)
             {
@@ -125,7 +125,7 @@ namespace LBM
         }
 
         template <label_t Q>
-        __host__ __device__ [[nodiscard]] static inline constexpr scalar_t g_eq(
+        __device__ __host__ [[nodiscard]] static inline constexpr scalar_t g_eq(
             const scalar_t phi,
             const scalar_t ux,
             const scalar_t uy,
@@ -135,13 +135,13 @@ namespace LBM
         }
 
         template <label_t Q>
-        __host__ __device__ [[nodiscard]] static inline constexpr scalar_t g_neq() noexcept
+        __device__ __host__ [[nodiscard]] static inline constexpr scalar_t g_neq() noexcept
         {
             return 0;
         }
 
         template <label_t Q>
-        __host__ __device__ [[nodiscard]] static inline constexpr scalar_t anti_diffusion(
+        __device__ __host__ [[nodiscard]] static inline constexpr scalar_t anti_diffusion(
             const scalar_t sharp,
             const scalar_t normx,
             const scalar_t normy,

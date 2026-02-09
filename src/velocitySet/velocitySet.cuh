@@ -30,7 +30,7 @@ namespace LBM
     class velocitySet
     {
     public:
-        __host__ __device__ [[nodiscard]] inline consteval velocitySet() noexcept {};
+        __device__ __host__ [[nodiscard]] inline consteval velocitySet() noexcept {};
     };
 }
 

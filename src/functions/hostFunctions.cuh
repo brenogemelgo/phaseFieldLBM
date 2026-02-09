@@ -179,130 +179,20 @@ namespace host
         return (a + b - 1u) / b;
     }
 
-    __host__ [[gnu::cold]] static inline void allocateFields(LBMFields &f)
+    __host__ [[nodiscard]] static inline constexpr size_t bytesScalarGrid3D() noexcept
     {
-        constexpr size_t NCELLS = static_cast<size_t>(mesh::nx) * static_cast<size_t>(mesh::ny) * static_cast<size_t>(mesh::nz);
-        constexpr size_t SIZE = NCELLS * sizeof(scalar_t);
-        constexpr size_t F_DIST_SIZE = NCELLS * static_cast<size_t>(LBM::VelocitySet::Q()) * sizeof(pop_t);
-        constexpr size_t G_DIST_SIZE = NCELLS * static_cast<size_t>(Phase::VelocitySet::Q()) * sizeof(scalar_t);
-
-        static_assert(NCELLS > 0, "Empty grid?");
-        static_assert(SIZE / sizeof(scalar_t) == NCELLS, "SIZE overflow");
-        static_assert(F_DIST_SIZE / sizeof(pop_t) == NCELLS * size_t(LBM::VelocitySet::Q()), "F_DIST_SIZE overflow");
-        static_assert(G_DIST_SIZE / sizeof(scalar_t) == NCELLS * size_t(Phase::VelocitySet::Q()), "G_DIST_SIZE overflow");
-
-        checkCudaErrors(cudaMalloc(&f.rho, SIZE));
-        checkCudaErrors(cudaMalloc(&f.ux, SIZE));
-        checkCudaErrors(cudaMalloc(&f.uy, SIZE));
-        checkCudaErrors(cudaMalloc(&f.uz, SIZE));
-        checkCudaErrors(cudaMalloc(&f.pxx, SIZE));
-        checkCudaErrors(cudaMalloc(&f.pyy, SIZE));
-        checkCudaErrors(cudaMalloc(&f.pzz, SIZE));
-        checkCudaErrors(cudaMalloc(&f.pxy, SIZE));
-        checkCudaErrors(cudaMalloc(&f.pxz, SIZE));
-        checkCudaErrors(cudaMalloc(&f.pyz, SIZE));
-        checkCudaErrors(cudaMalloc(&f.phi, SIZE));
-        checkCudaErrors(cudaMalloc(&f.normx, SIZE));
-        checkCudaErrors(cudaMalloc(&f.normy, SIZE));
-        checkCudaErrors(cudaMalloc(&f.normz, SIZE));
-        checkCudaErrors(cudaMalloc(&f.ind, SIZE));
-        checkCudaErrors(cudaMalloc(&f.ffx, SIZE));
-        checkCudaErrors(cudaMalloc(&f.ffy, SIZE));
-        checkCudaErrors(cudaMalloc(&f.ffz, SIZE));
-        checkCudaErrors(cudaMalloc(&f.f, F_DIST_SIZE));
-        checkCudaErrors(cudaMalloc(&f.g, G_DIST_SIZE));
-
-        checkCudaErrors(cudaMemset(f.rho, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.ux, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.uy, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.uz, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.pxx, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.pyy, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.pzz, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.pxy, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.pxz, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.pyz, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.phi, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.normx, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.normy, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.normz, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.ind, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.ffx, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.ffy, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.ffz, 0, SIZE));
-        checkCudaErrors(cudaMemset(f.f, 0, F_DIST_SIZE));
-        checkCudaErrors(cudaMemset(f.g, 0, G_DIST_SIZE));
-
-        getLastCudaErrorOutline("allocateFields: post-initialization");
+        return static_cast<size_t>(size::cells()) * sizeof(scalar_t);
     }
 
-    // Backward-compatible wrapper (existing code can still call host::allocateFields()).
-    __host__ [[gnu::cold]] static inline void allocateFields()
+    __host__ [[nodiscard]] static inline constexpr size_t bytesFDistros() noexcept
     {
-        allocateFields(fields);
+        return static_cast<size_t>(size::cells()) * static_cast<size_t>(LBM::VelocitySet::Q()) * sizeof(pop_t);
     }
 
-    __host__ static inline void freeBaseFields(LBMFields &f) noexcept
+    __host__ [[nodiscard]] static inline constexpr size_t bytesGDistros() noexcept
     {
-        auto free_ptr = [](auto *&p) noexcept
-        {
-            if (p)
-            {
-                cudaFree(p);
-                p = nullptr;
-            }
-        };
-
-        // Distributions first/last doesn't matter; keep grouped.
-        free_ptr(f.f);
-        free_ptr(f.g);
-
-        free_ptr(f.rho);
-        free_ptr(f.ux);
-        free_ptr(f.uy);
-        free_ptr(f.uz);
-        free_ptr(f.pxx);
-        free_ptr(f.pyy);
-        free_ptr(f.pzz);
-        free_ptr(f.pxy);
-        free_ptr(f.pxz);
-        free_ptr(f.pyz);
-
-        free_ptr(f.phi);
-        free_ptr(f.normx);
-        free_ptr(f.normy);
-        free_ptr(f.normz);
-        free_ptr(f.ind);
-        free_ptr(f.ffx);
-        free_ptr(f.ffy);
-        free_ptr(f.ffz);
-
-        getLastCudaErrorOutline("freeBaseFields");
+        return static_cast<size_t>(size::cells()) * static_cast<size_t>(Phase::VelocitySet::Q()) * sizeof(scalar_t);
     }
-
-    class BaseFieldsOwner
-    {
-    public:
-        explicit BaseFieldsOwner(LBMFields &f)
-            : f_(&f)
-        {
-            host::allocateFields(*f_);
-        }
-
-        BaseFieldsOwner(const BaseFieldsOwner &) = delete;
-        BaseFieldsOwner &operator=(const BaseFieldsOwner &) = delete;
-
-        ~BaseFieldsOwner() noexcept
-        {
-            if (f_)
-            {
-                host::freeBaseFields(*f_);
-            }
-        }
-
-    private:
-        LBMFields *f_ = nullptr;
-    };
 }
 
 #endif

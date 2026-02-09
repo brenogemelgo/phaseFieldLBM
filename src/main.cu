@@ -21,6 +21,7 @@ SourceFiles
 \*---------------------------------------------------------------------------*/
 
 #include "functions/deviceFunctions.cuh"
+#include "fieldAllocate/baseFieldsOwner.cuh"
 #include "functions/hostFunctions.cuh"
 #include "functions/ioFields.cuh"
 #include "functions/vtsWriter.cuh"
@@ -53,8 +54,38 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // Size variables
+    constexpr size_t S_BYTES = host::bytesScalarGrid3D();
+    constexpr size_t F_BYTES = host::bytesFDistros();
+    constexpr size_t G_BYTES = host::bytesGDistros();
+
+    // Device fields
+    static constexpr std::array<host::FieldDescription<scalar_t>, 18> BASE_SCALAR_GRID = {{
+        {"rho", &LBMFields::rho, S_BYTES, true},
+        {"ux", &LBMFields::ux, S_BYTES, true},
+        {"uy", &LBMFields::uy, S_BYTES, true},
+        {"uz", &LBMFields::uz, S_BYTES, true},
+        {"pxx", &LBMFields::pxx, S_BYTES, true},
+        {"pyy", &LBMFields::pyy, S_BYTES, true},
+        {"pzz", &LBMFields::pzz, S_BYTES, true},
+        {"pxy", &LBMFields::pxy, S_BYTES, true},
+        {"pxz", &LBMFields::pxz, S_BYTES, true},
+        {"pyz", &LBMFields::pyz, S_BYTES, true},
+        {"phi", &LBMFields::phi, S_BYTES, true},
+        {"normx", &LBMFields::normx, S_BYTES, true},
+        {"normy", &LBMFields::normy, S_BYTES, true},
+        {"normz", &LBMFields::normz, S_BYTES, true},
+        {"ind", &LBMFields::ind, S_BYTES, true},
+        {"ffx", &LBMFields::ffx, S_BYTES, true},
+        {"ffy", &LBMFields::ffy, S_BYTES, true},
+        {"ffz", &LBMFields::ffz, S_BYTES, true},
+    }};
+
+    static constexpr host::FieldDescription<pop_t> F_DIST = {"f", &LBMFields::f, F_BYTES, true};
+    static constexpr host::FieldDescription<scalar_t> G_DIST = {"g", &LBMFields::g, G_BYTES, true};
+
     // Allocate device fields
-    host::BaseFieldsOwner baseOwner(fields);
+    host::BaseFieldsOwner baseOwner(fields, BASE_SCALAR_GRID, F_DIST, G_DIST);
 
     // Construct derived fields manager
     Derived::Manager derived;

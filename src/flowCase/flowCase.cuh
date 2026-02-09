@@ -34,7 +34,7 @@ namespace LBM
     class flowCase
     {
     public:
-        __host__ __device__ [[nodiscard]] inline consteval flowCase() noexcept {};
+        __device__ __host__ [[nodiscard]] inline consteval flowCase() noexcept {};
     };
 }
 

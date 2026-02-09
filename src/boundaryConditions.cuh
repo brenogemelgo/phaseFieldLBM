@@ -31,7 +31,7 @@ namespace LBM
     class BoundaryConditions
     {
     public:
-        __host__ __device__ [[nodiscard]] inline consteval BoundaryConditions(){};
+        __device__ __host__ [[nodiscard]] inline consteval BoundaryConditions(){};
 
         __device__ static inline void applyInflow(
             LBMFields d,

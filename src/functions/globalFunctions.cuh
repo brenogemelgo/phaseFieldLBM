@@ -37,17 +37,17 @@ SourceFiles
 
 namespace block
 {
-    __host__ __device__ [[nodiscard]] static inline consteval unsigned num_block_x() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval unsigned num_block_x() noexcept
     {
         return (mesh::nx + block::nx - 1) / block::nx;
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval unsigned num_block_y() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval unsigned num_block_y() noexcept
     {
         return (mesh::ny + block::ny - 1) / block::ny;
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval unsigned size() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval unsigned size() noexcept
     {
         return block::nx * block::ny * block::nz;
     }
@@ -55,12 +55,12 @@ namespace block
 
 namespace size
 {
-    __host__ __device__ [[nodiscard]] static inline consteval label_t stride() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval label_t stride() noexcept
     {
         return mesh::nx * mesh::ny;
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval label_t cells() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval label_t cells() noexcept
     {
         return mesh::nx * mesh::ny * mesh::nz;
     }
@@ -68,22 +68,22 @@ namespace size
 
 namespace geometry
 {
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t R2() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t R2() noexcept
     {
         return static_cast<scalar_t>(mesh::radius * mesh::radius);
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t center_x() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t center_x() noexcept
     {
         return static_cast<scalar_t>(mesh::nx - 1) * static_cast<scalar_t>(0.5);
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t center_y() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t center_y() noexcept
     {
         return static_cast<scalar_t>(mesh::ny - 1) * static_cast<scalar_t>(0.5);
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t center_z() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t center_z() noexcept
     {
         return static_cast<scalar_t>(mesh::nz - 1) * static_cast<scalar_t>(0.5);
     }
@@ -91,12 +91,12 @@ namespace geometry
 
 namespace math
 {
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t two_pi() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t two_pi() noexcept
     {
         return static_cast<scalar_t>(2) * static_cast<scalar_t>(CUDART_PI_F);
     }
 
-    __host__ __device__ [[nodiscard]] static inline scalar_t sqrt(const scalar_t x) noexcept
+    __device__ __host__ [[nodiscard]] static inline scalar_t sqrt(const scalar_t x) noexcept
     {
         if constexpr (std::is_same_v<scalar_t, float>)
         {
@@ -108,7 +108,7 @@ namespace math
         }
     }
 
-    __host__ __device__ [[nodiscard]] static inline scalar_t log(const scalar_t x) noexcept
+    __device__ __host__ [[nodiscard]] static inline scalar_t log(const scalar_t x) noexcept
     {
         if constexpr (std::is_same_v<scalar_t, float>)
         {
@@ -120,7 +120,7 @@ namespace math
         }
     }
 
-    __host__ __device__ [[nodiscard]] static inline scalar_t min(
+    __device__ __host__ [[nodiscard]] static inline scalar_t min(
         const scalar_t a,
         const scalar_t b) noexcept
     {
@@ -134,7 +134,7 @@ namespace math
         }
     }
 
-    __host__ __device__ [[nodiscard]] static inline scalar_t max(
+    __device__ __host__ [[nodiscard]] static inline scalar_t max(
         const scalar_t a,
         const scalar_t b) noexcept
     {
@@ -148,7 +148,7 @@ namespace math
         }
     }
 
-    __host__ __device__ [[nodiscard]] static inline scalar_t cos(const scalar_t x) noexcept
+    __device__ __host__ [[nodiscard]] static inline scalar_t cos(const scalar_t x) noexcept
     {
         if constexpr (std::is_same_v<scalar_t, float>)
         {
@@ -160,7 +160,7 @@ namespace math
         }
     }
 
-    __host__ __device__ [[nodiscard]] static inline scalar_t tanh(const scalar_t x) noexcept
+    __device__ __host__ [[nodiscard]] static inline scalar_t tanh(const scalar_t x) noexcept
     {
         if constexpr (std::is_same_v<scalar_t, float>)
         {
@@ -172,7 +172,7 @@ namespace math
         }
     }
 
-    __host__ __device__ static inline void sincos(
+    __device__ __host__ static inline void sincos(
         const scalar_t x,
         scalar_t *s,
         scalar_t *c) noexcept
@@ -187,7 +187,7 @@ namespace math
         }
     }
 
-    __host__ __device__ [[nodiscard]] static inline scalar_t fma(
+    __device__ __host__ [[nodiscard]] static inline scalar_t fma(
         const scalar_t a,
         const scalar_t b,
         const scalar_t c) noexcept
@@ -202,7 +202,7 @@ namespace math
         }
     }
 
-    __host__ __device__ [[nodiscard]] static inline scalar_t abs(const scalar_t x) noexcept
+    __device__ __host__ [[nodiscard]] static inline scalar_t abs(const scalar_t x) noexcept
     {
         if constexpr (std::is_same_v<scalar_t, float>)
         {
@@ -217,32 +217,32 @@ namespace math
 
 namespace sponge
 {
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t K_gain() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t K_gain() noexcept
     {
         return static_cast<scalar_t>(100);
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval int sponge_cells() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval int sponge_cells() noexcept
     {
         return static_cast<int>(mesh::nz / 12);
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t sponge() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t sponge() noexcept
     {
         return static_cast<scalar_t>(static_cast<double>(sponge_cells()) / static_cast<double>(mesh::nz - 1));
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t z_start() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t z_start() noexcept
     {
         return static_cast<scalar_t>(static_cast<double>(mesh::nz - 1 - sponge_cells()) / static_cast<double>(mesh::nz - 1));
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t inv_nz_m1() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t inv_nz_m1() noexcept
     {
         return static_cast<scalar_t>(static_cast<double>(1) / static_cast<double>(mesh::nz - 1));
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t inv_sponge() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t inv_sponge() noexcept
     {
         return static_cast<scalar_t>(static_cast<double>(1) / static_cast<double>(sponge()));
     }
@@ -253,84 +253,84 @@ namespace relaxation
 
 #if defined(JET)
 
-    // __host__ __device__ [[nodiscard]] static inline consteval scalar_t visc_water() noexcept
+    // __device__ __host__ [[nodiscard]] static inline consteval scalar_t visc_water() noexcept
     // {
     //     return static_cast<scalar_t>(1.71e-4);
     // }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t visc_water() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t visc_water() noexcept
     {
         return static_cast<scalar_t>((static_cast<double>(physics::u_inf) * static_cast<double>(mesh::diam)) / static_cast<double>(physics::reynolds_water));
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t visc_oil() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t visc_oil() noexcept
     {
         return static_cast<scalar_t>((static_cast<double>(physics::u_inf) * static_cast<double>(mesh::diam)) / static_cast<double>(physics::reynolds_oil));
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t visc_ref() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t visc_ref() noexcept
     {
         return visc_water();
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t omega_from_nu(const scalar_t nu) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t omega_from_nu(const scalar_t nu) noexcept
     {
         return static_cast<scalar_t>(static_cast<double>(1) / (static_cast<double>(0.5) + static_cast<double>(LBM::VelocitySet::as2()) * static_cast<double>(nu)));
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t tau_from_nu(const scalar_t nu) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t tau_from_nu(const scalar_t nu) noexcept
     {
         return static_cast<scalar_t>(0.5) + static_cast<scalar_t>(LBM::VelocitySet::as2()) * nu;
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omega_water() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_water() noexcept
     {
         return omega_from_nu(visc_water());
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omega_oil() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_oil() noexcept
     {
         return omega_from_nu(visc_oil());
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omega_ref() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_ref() noexcept
     {
         return omega_water();
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t tau_water() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t tau_water() noexcept
     {
         return tau_from_nu(visc_water());
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t tau_oil() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t tau_oil() noexcept
     {
         return tau_from_nu(visc_oil());
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t tau_ref() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t tau_ref() noexcept
     {
         return tau_water();
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omega_zmin() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_zmin() noexcept
     {
         return omega_oil();
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t omega_zmax(const scalar_t phi) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t omega_zmax(const scalar_t phi) noexcept
     {
         const scalar_t visc_local = (static_cast<scalar_t>(1) - phi) * visc_water() + phi * visc_oil();
 
         return omega_from_nu(visc_local * (static_cast<scalar_t>(1) + sponge::K_gain()));
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t omega_delta(const scalar_t phi) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t omega_delta(const scalar_t phi) noexcept
     {
         return omega_zmax(phi) - omega_zmin();
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t tau_zmax(const scalar_t phi) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t tau_zmax(const scalar_t phi) noexcept
     {
         const scalar_t visc_local = (static_cast<scalar_t>(1) - phi) * visc_water() + phi * visc_oil();
         const scalar_t visc_sp = visc_local * (static_cast<scalar_t>(1) + sponge::K_gain());
@@ -338,79 +338,79 @@ namespace relaxation
         return tau_from_nu(visc_sp);
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omco_ref() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omco_ref() noexcept
     {
         return static_cast<scalar_t>(1) - omega_ref();
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omco_zmin() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omco_zmin() noexcept
     {
         return static_cast<scalar_t>(1) - omega_zmin();
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t omco_zmax(const scalar_t phi) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t omco_zmax(const scalar_t phi) noexcept
     {
         return static_cast<scalar_t>(1) - omega_zmax(phi);
     }
 
 #elif defined(DROPLET)
 
-    // __host__ __device__ [[nodiscard]] static inline consteval scalar_t visc_water() noexcept
+    // __device__ __host__ [[nodiscard]] static inline consteval scalar_t visc_water() noexcept
     // {
     //     return static_cast<scalar_t>(1.71e-4);
     // }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t tau_water() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t tau_water() noexcept
     {
         return static_cast<scalar_t>(0);
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t tau_oil() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t tau_oil() noexcept
     {
         return static_cast<scalar_t>(0);
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t tau_zmax(const scalar_t phi) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t tau_zmax(const scalar_t phi) noexcept
     {
         return static_cast<scalar_t>(0);
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t omega_from_nu(const scalar_t nu) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t omega_from_nu(const scalar_t nu) noexcept
     {
         return static_cast<scalar_t>(static_cast<double>(1) / (static_cast<double>(0.5) + static_cast<double>(LBM::VelocitySet::as2()) * static_cast<double>(nu)));
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omega_ref() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_ref() noexcept
     {
         return omega_from_nu(physics::visc_ref);
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omega_zmin() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_zmin() noexcept
     {
         return omega_ref();
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omega_zmax() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_zmax() noexcept
     {
         return omega_ref();
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omega_delta() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_delta() noexcept
     {
         return omega_zmax() - omega_zmin();
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omco_ref() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omco_ref() noexcept
     {
         return static_cast<scalar_t>(1) - omega_ref();
     }
 
-    __host__ __device__ [[nodiscard]] static inline consteval scalar_t omco_zmin() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval scalar_t omco_zmin() noexcept
     {
         return static_cast<scalar_t>(1) - omega_zmin();
     }
 
-    __host__ __device__ [[nodiscard]] static inline constexpr scalar_t omco_zmax(const scalar_t phi) noexcept
+    __device__ __host__ [[nodiscard]] static inline constexpr scalar_t omco_zmax(const scalar_t phi) noexcept
     {
         return static_cast<scalar_t>(1) - omega_zmax();
     }
