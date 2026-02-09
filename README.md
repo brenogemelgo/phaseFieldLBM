@@ -1,6 +1,6 @@
 # MULTIC-TS-LBM
 
-**MULTIC-TS-LBM** is a **GPU-accelerated**, thread-safe Lattice Boltzmann simulator for multicomponent flows. Implemented in CUDA, it supports **D3Q19/D3Q27** for hydrodynamics and **D3Q7** for phase field evolution, capturing interface dynamics and surface tension. Available cases: **jet**.
+**MULTIC-TS-LBM** is a **GPU-accelerated**, thread-safe Lattice Boltzmann simulator for multicomponent flows. Implemented in CUDA, it supports **D3Q19/D3Q27** for hydrodynamics and **D3Q7** for phase field evolution, capturing interface dynamics and surface tension. Available cases: **jet** and **droplet**.
 
 ---
 
@@ -16,9 +16,10 @@
 ## 🚀 Run
 
 ```bash
-./pipeline.sh <velocity_set> <id>
+./pipeline.sh <flow_case> <velocity_set> <id>
 ```
 
+* `flow_case`: `JET` | `DROPLET`
 * `velocity_set`: `D3Q19` | `D3Q27`
 * `id`: simulation ID (e.g., `000`)
 
@@ -33,7 +34,7 @@ Each GPU entry shows the average across multiple runs.
 
 | GPU            | D3Q19 (MLUPS) | D3Q27 (MLUPS) |
 |----------------|---------------|---------------|
-| RTX 3050 (4GB) | --       | –             |
+| RTX 3050 (4GB) | --            | –             |
 | RTX 4090 (24GB)| –             | –             |
 | A100 (40GB)    | –             | –             |
 
