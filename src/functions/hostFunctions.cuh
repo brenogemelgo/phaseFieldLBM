@@ -231,8 +231,8 @@ namespace host
 #if TIME_AVERAGE
 
         checkCudaErrors(cudaMalloc(&fields.avg_phi, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.avg_ux, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.avg_uy, SIZE));
+        // checkCudaErrors(cudaMalloc(&fields.avg_ux, SIZE));
+        // checkCudaErrors(cudaMalloc(&fields.avg_uy, SIZE));
         checkCudaErrors(cudaMalloc(&fields.avg_uz, SIZE));
 
 #endif
@@ -287,8 +287,8 @@ namespace host
 #if TIME_AVERAGE
 
         checkCudaErrors(cudaMemset(fields.avg_phi, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.avg_ux, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.avg_uy, 0, SIZE));
+        // checkCudaErrors(cudaMemset(fields.avg_ux, 0, SIZE));
+        // checkCudaErrors(cudaMemset(fields.avg_uy, 0, SIZE));
         checkCudaErrors(cudaMemset(fields.avg_uz, 0, SIZE));
 
 #endif
@@ -306,7 +306,7 @@ namespace host
 
 #if PASSIVE_SCALAR
 
-        checkcudaErrors(cudaMemset(fields.c, 0, SIZE));
+        checkCudaErrors(cudaMemset(fields.c, 0, SIZE));
 
 #endif
 

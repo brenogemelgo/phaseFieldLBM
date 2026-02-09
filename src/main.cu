@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
         cudaStreamSynchronize(queue);
 
         // Derived fields
-#if TIME_AVERAGE || REYNOLDS_MOMENTS || VORTICITY_FIELDS
+#if TIME_AVERAGE || REYNOLDS_MOMENTS || VORTICITY_FIELDS || PASSIVE_SCALAR
         Derived::launchAllDerived<grid3D, block3D, dynamic>(queue, fields, STEP);
 #endif
 

@@ -67,8 +67,8 @@ namespace host
         Ffy,
         Ffz,
         Avg_phi,
-        Avg_ux,
-        Avg_uy,
+        // Avg_ux,
+        // Avg_uy,
         Avg_uz,
         Avg_uxux,
         Avg_uyuy,
@@ -142,10 +142,10 @@ namespace host
 
         case FieldID::Avg_phi:
             return fields.avg_phi;
-        case FieldID::Avg_ux:
-            return fields.avg_ux;
-        case FieldID::Avg_uy:
-            return fields.avg_uy;
+        // case FieldID::Avg_ux:
+        //     return fields.avg_ux;
+        // case FieldID::Avg_uy:
+        //     return fields.avg_uy;
         case FieldID::Avg_uz:
             return fields.avg_uz;
 

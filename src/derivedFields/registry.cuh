@@ -53,7 +53,7 @@ namespace Derived
     __host__ [[nodiscard]] static inline std::vector<host::FieldConfig> makeOutputFields()
     {
         std::vector<host::FieldConfig> fields;
-        fields.reserve(4 + 6 + 4); // 4 time averages + 6 reynolds moments + 4 vorticity fields + 1 concentration field
+        fields.reserve(2 + 6 + 4 + 1); // 2 time averages + 6 reynolds moments + 4 vorticity fields + 1 concentration field
 #if TIME_AVERAGE
         fields.insert(fields.end(), TimeAvg::fields.begin(), TimeAvg::fields.end());
 #endif
