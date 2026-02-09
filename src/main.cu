@@ -30,6 +30,7 @@ SourceFiles
 #include "boundaryConditions.cuh"
 #include "phaseField.cuh"
 #include "derivedFields/registry.cuh"
+#include "derivedFields/manager.cuh"
 #include "lbm.cu"
 
 int main(int argc, char *argv[])
@@ -53,7 +54,11 @@ int main(int argc, char *argv[])
     }
 
     // Allocate device fields
-    host::allocateFields();
+    host::BaseFieldsOwner baseOwner(fields);
+
+    // Construct derived fields manager
+    Derived::Manager derived;
+    derived.allocate(fields);
 
     // Block-wise configuration
     constexpr dim3 block3D(block::nx, block::ny, block::nz);
@@ -158,7 +163,7 @@ int main(int argc, char *argv[])
 
             const auto step_copy = STEP;
 
-            host::saveConfiguredFields(OUTPUT_FIELDS, SIM_DIR, step_copy);
+            host::saveConfiguredFields(OUTPUT_FIELDS, SIM_DIR, step_copy, fields);
 
             vtk_threads.emplace_back(
                 [step_copy,
@@ -196,31 +201,6 @@ int main(int argc, char *argv[])
 
     // Destroy stream
     checkCudaErrorsOutline(cudaStreamDestroy(queue));
-
-    // Free device memory
-    cudaFree(fields.f);
-    cudaFree(fields.g);
-    cudaFree(fields.rho);
-    cudaFree(fields.ux);
-    cudaFree(fields.uy);
-    cudaFree(fields.uz);
-    cudaFree(fields.pxx);
-    cudaFree(fields.pyy);
-    cudaFree(fields.pzz);
-    cudaFree(fields.pxy);
-    cudaFree(fields.pxz);
-    cudaFree(fields.pyz);
-    cudaFree(fields.phi);
-    cudaFree(fields.normx);
-    cudaFree(fields.normy);
-    cudaFree(fields.normz);
-    cudaFree(fields.ind);
-    cudaFree(fields.ffx);
-    cudaFree(fields.ffy);
-    cudaFree(fields.ffz);
-
-    // Free derived fields (conditional; only frees what was allocated)
-    Derived::freeAll(fields);
 
     const std::chrono::duration<double> ELAPSED_TIME = END_TIME - START_TIME;
 

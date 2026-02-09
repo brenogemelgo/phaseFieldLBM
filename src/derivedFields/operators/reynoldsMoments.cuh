@@ -17,6 +17,8 @@ Description
 
 Namespace
     LBM
+    Derived
+    ReynoldsMoments
 
 SourceFiles
     reynoldsMoments.cuh
@@ -45,37 +47,58 @@ namespace LBM
             return;
         }
 
+        if (d.avg_uxux == nullptr && d.avg_uyuy == nullptr && d.avg_uzuz == nullptr && d.avg_uxuy == nullptr && d.avg_uxuz == nullptr && d.avg_uyuz == nullptr)
+        {
+            return;
+        }
+
         const label_t idx3 = device::global3(x, y, z);
 
         const scalar_t ux = d.ux[idx3];
         const scalar_t uy = d.uy[idx3];
         const scalar_t uz = d.uz[idx3];
 
-        const scalar_t uxux = ux * ux;
-        const scalar_t uyuy = uy * uy;
-        const scalar_t uzuz = uz * uz;
-
-        const scalar_t uxuy = ux * uy;
-        const scalar_t uxuz = ux * uz;
-        const scalar_t uyuz = uy * uz;
-
         auto update = [t] __device__(scalar_t oldv, scalar_t instv)
         {
             return oldv + (instv - oldv) / static_cast<scalar_t>(t);
         };
 
-        d.avg_uxux[idx3] = update(d.avg_uxux[idx3], uxux);
-        d.avg_uyuy[idx3] = update(d.avg_uyuy[idx3], uyuy);
-        d.avg_uzuz[idx3] = update(d.avg_uzuz[idx3], uzuz);
-        d.avg_uxuy[idx3] = update(d.avg_uxuy[idx3], uxuy);
-        d.avg_uxuz[idx3] = update(d.avg_uxuz[idx3], uxuz);
-        d.avg_uyuz[idx3] = update(d.avg_uyuz[idx3], uyuz);
+        if (d.avg_uxux)
+        {
+            const scalar_t uxux = ux * ux;
+            d.avg_uxux[idx3] = update(d.avg_uxux[idx3], uxux);
+        }
+        if (d.avg_uyuy)
+        {
+            const scalar_t uyuy = uy * uy;
+            d.avg_uyuy[idx3] = update(d.avg_uyuy[idx3], uyuy);
+        }
+        if (d.avg_uzuz)
+        {
+            const scalar_t uzuz = uz * uz;
+            d.avg_uzuz[idx3] = update(d.avg_uzuz[idx3], uzuz);
+        }
+        if (d.avg_uxuy)
+        {
+            const scalar_t uxuy = ux * uy;
+            d.avg_uxuy[idx3] = update(d.avg_uxuy[idx3], uxuy);
+        }
+        if (d.avg_uxuz)
+        {
+            const scalar_t uxuz = ux * uz;
+            d.avg_uxuz[idx3] = update(d.avg_uxuz[idx3], uxuz);
+        }
+        if (d.avg_uyuz)
+        {
+            const scalar_t uyuz = uy * uz;
+            d.avg_uyuz[idx3] = update(d.avg_uyuz[idx3], uyuz);
+        }
     }
 }
 
 namespace Derived
 {
-    namespace Reynolds
+    namespace ReynoldsMoments
     {
         constexpr std::array<host::FieldConfig, 6> fields{{
             {host::FieldID::Avg_uxux, "avg_uxux", host::FieldDumpShape::Grid3D, true},
@@ -92,21 +115,41 @@ namespace Derived
             LBMFields d,
             const label_t t) noexcept
         {
-#if REYNOLDS_MOMENTS
             LBM::reynoldsMomentsAverage<<<grid, block, dynamic, queue>>>(d, t + 1);
-#endif
         }
 
-        __host__ static inline void free(LBMFields &d)
+        __host__ static inline void free(LBMFields &d) noexcept
         {
-#if REYNOLDS_MOMENTS
-            cudaFree(d.avg_uxux);
-            cudaFree(d.avg_uyuy);
-            cudaFree(d.avg_uzuz);
-            cudaFree(d.avg_uxuy);
-            cudaFree(d.avg_uxuz);
-            cudaFree(d.avg_uyuz);
-#endif
+            if (d.avg_uxux)
+            {
+                cudaFree(d.avg_uxux);
+                d.avg_uxux = nullptr;
+            }
+            if (d.avg_uyuy)
+            {
+                cudaFree(d.avg_uyuy);
+                d.avg_uyuy = nullptr;
+            }
+            if (d.avg_uzuz)
+            {
+                cudaFree(d.avg_uzuz);
+                d.avg_uzuz = nullptr;
+            }
+            if (d.avg_uxuy)
+            {
+                cudaFree(d.avg_uxuy);
+                d.avg_uxuy = nullptr;
+            }
+            if (d.avg_uxuz)
+            {
+                cudaFree(d.avg_uxuz);
+                d.avg_uxuz = nullptr;
+            }
+            if (d.avg_uyuz)
+            {
+                cudaFree(d.avg_uyuz);
+                d.avg_uyuz = nullptr;
+            }
         }
     }
 }

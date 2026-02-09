@@ -179,7 +179,7 @@ namespace host
         return (a + b - 1u) / b;
     }
 
-    __host__ [[gnu::cold]] static inline void allocateFields()
+    __host__ [[gnu::cold]] static inline void allocateFields(LBMFields &f)
     {
         constexpr size_t NCELLS = static_cast<size_t>(mesh::nx) * static_cast<size_t>(mesh::ny) * static_cast<size_t>(mesh::nz);
         constexpr size_t SIZE = NCELLS * sizeof(scalar_t);
@@ -191,111 +191,118 @@ namespace host
         static_assert(F_DIST_SIZE / sizeof(pop_t) == NCELLS * size_t(LBM::VelocitySet::Q()), "F_DIST_SIZE overflow");
         static_assert(G_DIST_SIZE / sizeof(scalar_t) == NCELLS * size_t(Phase::VelocitySet::Q()), "G_DIST_SIZE overflow");
 
-        checkCudaErrors(cudaMalloc(&fields.rho, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.ux, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.uy, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.uz, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.pxx, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.pyy, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.pzz, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.pxy, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.pxz, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.pyz, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.phi, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.normx, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.normy, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.normz, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.ind, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.ffx, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.ffy, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.ffz, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.f, F_DIST_SIZE));
-        checkCudaErrors(cudaMalloc(&fields.g, G_DIST_SIZE));
+        checkCudaErrors(cudaMalloc(&f.rho, SIZE));
+        checkCudaErrors(cudaMalloc(&f.ux, SIZE));
+        checkCudaErrors(cudaMalloc(&f.uy, SIZE));
+        checkCudaErrors(cudaMalloc(&f.uz, SIZE));
+        checkCudaErrors(cudaMalloc(&f.pxx, SIZE));
+        checkCudaErrors(cudaMalloc(&f.pyy, SIZE));
+        checkCudaErrors(cudaMalloc(&f.pzz, SIZE));
+        checkCudaErrors(cudaMalloc(&f.pxy, SIZE));
+        checkCudaErrors(cudaMalloc(&f.pxz, SIZE));
+        checkCudaErrors(cudaMalloc(&f.pyz, SIZE));
+        checkCudaErrors(cudaMalloc(&f.phi, SIZE));
+        checkCudaErrors(cudaMalloc(&f.normx, SIZE));
+        checkCudaErrors(cudaMalloc(&f.normy, SIZE));
+        checkCudaErrors(cudaMalloc(&f.normz, SIZE));
+        checkCudaErrors(cudaMalloc(&f.ind, SIZE));
+        checkCudaErrors(cudaMalloc(&f.ffx, SIZE));
+        checkCudaErrors(cudaMalloc(&f.ffy, SIZE));
+        checkCudaErrors(cudaMalloc(&f.ffz, SIZE));
+        checkCudaErrors(cudaMalloc(&f.f, F_DIST_SIZE));
+        checkCudaErrors(cudaMalloc(&f.g, G_DIST_SIZE));
 
-#if TIME_AVERAGE
-
-        checkCudaErrors(cudaMalloc(&fields.avg_phi, SIZE));
-        // checkCudaErrors(cudaMalloc(&fields.avg_ux, SIZE));
-        // checkCudaErrors(cudaMalloc(&fields.avg_uy, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.avg_uz, SIZE));
-
-#endif
-
-#if REYNOLDS_MOMENTS
-
-        checkCudaErrors(cudaMalloc(&fields.avg_uxux, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.avg_uyuy, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.avg_uzuz, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.avg_uxuy, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.avg_uxuz, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.avg_uyuz, SIZE));
-
-#endif
-
-#if VORTICITY_FIELDS
-
-        checkCudaErrors(cudaMalloc(&fields.vort_x, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.vort_y, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.vort_z, SIZE));
-        checkCudaErrors(cudaMalloc(&fields.vort_mag, SIZE));
-
-#endif
-
-#if PASSIVE_SCALAR
-
-        checkCudaErrors(cudaMalloc(&fields.c, SIZE));
-
-#endif
-
-        checkCudaErrors(cudaMemset(fields.rho, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.ux, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.uy, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.uz, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.pxx, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.pyy, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.pzz, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.pxy, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.pxz, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.pyz, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.phi, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.normx, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.normy, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.normz, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.ind, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.ffx, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.ffy, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.ffz, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.f, 0, F_DIST_SIZE));
-        checkCudaErrors(cudaMemset(fields.g, 0, G_DIST_SIZE));
-
-#if TIME_AVERAGE
-
-        checkCudaErrors(cudaMemset(fields.avg_phi, 0, SIZE));
-        // checkCudaErrors(cudaMemset(fields.avg_ux, 0, SIZE));
-        // checkCudaErrors(cudaMemset(fields.avg_uy, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.avg_uz, 0, SIZE));
-
-#endif
-
-#if REYNOLDS_MOMENTS
-
-        checkCudaErrors(cudaMemset(fields.avg_uxux, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.avg_uyuy, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.avg_uzuz, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.avg_uxuy, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.avg_uxuz, 0, SIZE));
-        checkCudaErrors(cudaMemset(fields.avg_uyuz, 0, SIZE));
-
-#endif
-
-#if PASSIVE_SCALAR
-
-        checkCudaErrors(cudaMemset(fields.c, 0, SIZE));
-
-#endif
+        checkCudaErrors(cudaMemset(f.rho, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.ux, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.uy, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.uz, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.pxx, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.pyy, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.pzz, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.pxy, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.pxz, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.pyz, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.phi, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.normx, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.normy, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.normz, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.ind, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.ffx, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.ffy, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.ffz, 0, SIZE));
+        checkCudaErrors(cudaMemset(f.f, 0, F_DIST_SIZE));
+        checkCudaErrors(cudaMemset(f.g, 0, G_DIST_SIZE));
 
         getLastCudaErrorOutline("allocateFields: post-initialization");
     }
+
+    // Backward-compatible wrapper (existing code can still call host::allocateFields()).
+    __host__ [[gnu::cold]] static inline void allocateFields()
+    {
+        allocateFields(fields);
+    }
+
+    __host__ static inline void freeBaseFields(LBMFields &f) noexcept
+    {
+        auto free_ptr = [](auto *&p) noexcept
+        {
+            if (p)
+            {
+                cudaFree(p);
+                p = nullptr;
+            }
+        };
+
+        // Distributions first/last doesn't matter; keep grouped.
+        free_ptr(f.f);
+        free_ptr(f.g);
+
+        free_ptr(f.rho);
+        free_ptr(f.ux);
+        free_ptr(f.uy);
+        free_ptr(f.uz);
+        free_ptr(f.pxx);
+        free_ptr(f.pyy);
+        free_ptr(f.pzz);
+        free_ptr(f.pxy);
+        free_ptr(f.pxz);
+        free_ptr(f.pyz);
+
+        free_ptr(f.phi);
+        free_ptr(f.normx);
+        free_ptr(f.normy);
+        free_ptr(f.normz);
+        free_ptr(f.ind);
+        free_ptr(f.ffx);
+        free_ptr(f.ffy);
+        free_ptr(f.ffz);
+
+        getLastCudaErrorOutline("freeBaseFields");
+    }
+
+    class BaseFieldsOwner
+    {
+    public:
+        explicit BaseFieldsOwner(LBMFields &f)
+            : f_(&f)
+        {
+            host::allocateFields(*f_);
+        }
+
+        BaseFieldsOwner(const BaseFieldsOwner &) = delete;
+        BaseFieldsOwner &operator=(const BaseFieldsOwner &) = delete;
+
+        ~BaseFieldsOwner() noexcept
+        {
+            if (f_)
+            {
+                host::freeBaseFields(*f_);
+            }
+        }
+
+    private:
+        LBMFields *f_ = nullptr;
+    };
 }
 
 #endif

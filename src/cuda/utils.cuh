@@ -38,6 +38,7 @@ SourceFiles
 #include <chrono>
 #include <stdexcept>
 #include <cmath>
+#include <cstring>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>

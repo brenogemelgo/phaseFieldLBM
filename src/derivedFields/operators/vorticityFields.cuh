@@ -17,13 +17,11 @@ Description
 
 Namespace
     LBM
+    Derived
+    VorticityFields
 
 SourceFiles
     vorticityFields.cuh
-
-Notes
-    - Assumes lattice spacing = 1 (LB units) for finite differences.
-    - Boundary stencils are one-sided to avoid out-of-bounds accesses.
 
 \*---------------------------------------------------------------------------*/
 
@@ -47,9 +45,13 @@ namespace LBM
             return;
         }
 
+        if (d.vort_x == nullptr && d.vort_y == nullptr && d.vort_z == nullptr && d.vort_mag == nullptr)
+        {
+            return;
+        }
+
         const label_t idx3 = device::global3(x, y, z);
 
-        // Default: zero vorticity (boundaries)
         scalar_t wx = static_cast<scalar_t>(0);
         scalar_t wy = static_cast<scalar_t>(0);
         scalar_t wz = static_cast<scalar_t>(0);
@@ -82,19 +84,30 @@ namespace LBM
             wz = duy_dx - dux_dy;
         }
 
-        const scalar_t wmag =
-            math::sqrt(wx * wx + wy * wy + wz * wz);
+        if (d.vort_x)
+        {
+            d.vort_x[idx3] = wx;
+        }
+        if (d.vort_y)
+        {
+            d.vort_y[idx3] = wy;
+        }
+        if (d.vort_z)
+        {
+            d.vort_z[idx3] = wz;
+        }
 
-        d.vort_x[idx3] = wx;
-        d.vort_y[idx3] = wy;
-        d.vort_z[idx3] = wz;
-        d.vort_mag[idx3] = wmag;
+        if (d.vort_mag)
+        {
+            const scalar_t wmag = math::sqrt(wx * wx + wy * wy + wz * wz);
+            d.vort_mag[idx3] = wmag;
+        }
     }
 }
 
 namespace Derived
 {
-    namespace Vorticity
+    namespace VorticityFields
     {
         constexpr std::array<host::FieldConfig, 4> fields{{
             {host::FieldID::Vort_x, "vort_x", host::FieldDumpShape::Grid3D, true},
@@ -108,19 +121,31 @@ namespace Derived
             cudaStream_t queue,
             LBMFields d) noexcept
         {
-#if VORTICITY_FIELDS
             LBM::vorticityCompute<<<grid, block, dynamic, queue>>>(d);
-#endif
         }
 
-        __host__ static inline void free(LBMFields &d)
+        __host__ static inline void free(LBMFields &d) noexcept
         {
-#if VORTICITY_FIELDS
-            cudaFree(d.vort_x);
-            cudaFree(d.vort_y);
-            cudaFree(d.vort_z);
-            cudaFree(d.vort_mag);
-#endif
+            if (d.vort_x)
+            {
+                cudaFree(d.vort_x);
+                d.vort_x = nullptr;
+            }
+            if (d.vort_y)
+            {
+                cudaFree(d.vort_y);
+                d.vort_y = nullptr;
+            }
+            if (d.vort_z)
+            {
+                cudaFree(d.vort_z);
+                d.vort_z = nullptr;
+            }
+            if (d.vort_mag)
+            {
+                cudaFree(d.vort_mag);
+                d.vort_mag = nullptr;
+            }
         }
     }
 }

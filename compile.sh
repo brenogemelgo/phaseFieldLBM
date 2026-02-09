@@ -69,8 +69,8 @@ nvcc -O3 --restrict \
      -DENABLE_FP16=1 \
      -DBENCHMARK=0 \
      -DTIME_AVERAGE=1 \
-     -DREYNOLDS_MOMENTS=0 \
-     -DVORTICITY_FIELDS=0 \
+     -DREYNOLDS_MOMENTS=1 \
+     -DVORTICITY_FIELDS=1 \
      -DPASSIVE_SCALAR=0 \
      -o "${EXECUTABLE}"
 

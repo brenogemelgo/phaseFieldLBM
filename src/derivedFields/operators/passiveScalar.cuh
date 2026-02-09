@@ -17,6 +17,8 @@ Description
 
 Namespace
     LBM
+    Derived
+    PassiveScalar
 
 SourceFiles
     passiveScalar.cuh
@@ -57,10 +59,14 @@ namespace Derived
 #endif
         }
 
-        __host__ static inline void free(LBMFields &d)
+        __host__ static inline void free(LBMFields &d) noexcept
         {
 #if PASSIVE_SCALAR
-            cudaFree(d.c);
+            if (d.c)
+            {
+                cudaFree(d.c);
+                d.c = nullptr;
+            }
 #endif
         }
     }

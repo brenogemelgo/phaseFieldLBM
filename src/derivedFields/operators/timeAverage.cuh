@@ -17,6 +17,8 @@ Description
 
 Namespace
     LBM
+    Derived
+    TimeAverage
 
 SourceFiles
     timeAverage.cuh
@@ -45,33 +47,49 @@ namespace LBM
             return;
         }
 
-        const label_t idx3 = device::global3(x, y, z);
+        if (d.avg_phi == nullptr && d.avg_ux == nullptr && d.avg_uy == nullptr && d.avg_uz == nullptr)
+        {
+            return;
+        }
 
-        const scalar_t phi = d.phi[idx3];
-        // const scalar_t ux = d.ux[idx3];
-        // const scalar_t uy = d.uy[idx3];
-        const scalar_t uz = d.uz[idx3];
+        const label_t idx3 = device::global3(x, y, z);
 
         auto update = [t] __device__(scalar_t old_val, scalar_t new_val)
         {
             return old_val + (new_val - old_val) / static_cast<scalar_t>(t);
         };
 
-        d.avg_phi[idx3] = update(d.avg_phi[idx3], phi);
-        // d.avg_ux[idx3] = update(d.avg_ux[idx3], ux);
-        // d.avg_uy[idx3] = update(d.avg_uy[idx3], uy);
-        d.avg_uz[idx3] = update(d.avg_uz[idx3], uz);
+        if (d.avg_phi)
+        {
+            const scalar_t phi = d.phi[idx3];
+            d.avg_phi[idx3] = update(d.avg_phi[idx3], phi);
+        }
+        if (d.avg_ux)
+        {
+            const scalar_t ux = d.ux[idx3];
+            d.avg_ux[idx3] = update(d.avg_ux[idx3], ux);
+        }
+        if (d.avg_uy)
+        {
+            const scalar_t uy = d.uy[idx3];
+            d.avg_uy[idx3] = update(d.avg_uy[idx3], uy);
+        }
+        if (d.avg_uz)
+        {
+            const scalar_t uz = d.uz[idx3];
+            d.avg_uz[idx3] = update(d.avg_uz[idx3], uz);
+        }
     }
 }
 
 namespace Derived
 {
-    namespace TimeAvg
+    namespace TimeAverage
     {
-        constexpr std::array<host::FieldConfig, 2> fields{{
+        constexpr std::array<host::FieldConfig, 4> fields{{
             {host::FieldID::Avg_phi, "avg_phi", host::FieldDumpShape::Grid3D, true},
-            // {host::FieldID::Avg_ux, "avg_ux", host::FieldDumpShape::Grid3D, true},
-            // {host::FieldID::Avg_uy, "avg_uy", host::FieldDumpShape::Grid3D, true},
+            {host::FieldID::Avg_ux, "avg_ux", host::FieldDumpShape::Grid3D, true},
+            {host::FieldID::Avg_uy, "avg_uy", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_uz, "avg_uz", host::FieldDumpShape::Grid3D, true},
         }};
 
@@ -86,13 +104,29 @@ namespace Derived
 #endif
         }
 
-        __host__ static inline void free(LBMFields &d)
+        __host__ static inline void free(LBMFields &d) noexcept
         {
 #if TIME_AVERAGE
-            cudaFree(d.avg_phi);
-            // cudaFree(d.avg_ux);
-            // cudaFree(d.avg_uy);
-            cudaFree(d.avg_uz);
+            if (d.avg_phi)
+            {
+                cudaFree(d.avg_phi);
+                d.avg_phi = nullptr;
+            }
+            if (d.avg_ux)
+            {
+                cudaFree(d.avg_ux);
+                d.avg_ux = nullptr;
+            }
+            if (d.avg_uy)
+            {
+                cudaFree(d.avg_uy);
+                d.avg_uy = nullptr;
+            }
+            if (d.avg_uz)
+            {
+                cudaFree(d.avg_uz);
+                d.avg_uz = nullptr;
+            }
 #endif
         }
     }

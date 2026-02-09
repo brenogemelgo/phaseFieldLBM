@@ -26,68 +26,113 @@ SourceFiles
 #ifndef REGISTRY_CUH
 #define REGISTRY_CUH
 
-#include "timeAverage.cuh"
-#include "reynoldsMoments.cuh"
-#include "vorticityFields.cuh"
-#include "passiveScalar.cuh"
+#include "selection.cuh"
+
+#include "operators/timeAverage.cuh"
+#include "operators/reynoldsMoments.cuh"
+#include "operators/vorticityFields.cuh"
+#include "operators/passiveScalar.cuh"
 
 namespace Derived
 {
+    __host__ [[nodiscard]] static inline std::vector<host::FieldConfig> makeOutputFields()
+    {
+        std::vector<host::FieldConfig> out;
 
-        __host__ [[nodiscard]] static inline std::vector<host::FieldConfig> makeOutputFields()
-        {
-                std::vector<host::FieldConfig> fields;
-                fields.reserve(2 + 6 + 4 + 1); // 2 time averages + 6 reynolds moments + 4 vorticity fields + 1 concentration field
+        size_t cap = 0;
+
 #if TIME_AVERAGE
-                fields.insert(fields.end(), TimeAvg::fields.begin(), TimeAvg::fields.end());
+        cap += TimeAverage::fields.size();
 #endif
 #if REYNOLDS_MOMENTS
-                fields.insert(fields.end(), Reynolds::fields.begin(), Reynolds::fields.end());
+        cap += ReynoldsMoments::fields.size();
 #endif
 #if VORTICITY_FIELDS
-                fields.insert(fields.end(), Vorticity::fields.begin(), Vorticity::fields.end());
+        cap += VorticityFields::fields.size();
 #endif
 #if PASSIVE_SCALAR
-                fields.insert(fields.end(), PassiveScalar::fields.begin(), PassiveScalar::fields.end());
+        cap += PassiveScalar::fields.size();
 #endif
-                return fields;
-        }
 
-        template <dim3 grid, dim3 block, size_t dynamic>
-        __host__ static inline void launchAllDerived(
-            cudaStream_t queue,
-            LBMFields d,
-            const label_t step) noexcept
+        out.reserve(cap);
+
+        auto append_selected = [&](const auto &arr)
         {
+            for (const auto &cfg : arr)
+            {
+                if (Selection::enabledName(cfg.name))
+                {
+                    out.push_back(cfg);
+                }
+            }
+        };
+
 #if TIME_AVERAGE
-                TimeAvg::launch<grid, block, dynamic>(queue, d, step);
+        append_selected(TimeAverage::fields);
 #endif
 #if REYNOLDS_MOMENTS
-                Reynolds::launch<grid, block, dynamic>(queue, d, step);
+        append_selected(ReynoldsMoments::fields);
 #endif
 #if VORTICITY_FIELDS
-                Vorticity::launch<grid, block, dynamic>(queue, d);
+        append_selected(VorticityFields::fields);
 #endif
 #if PASSIVE_SCALAR
-                PassiveScalar::launch<grid, block, dynamic>(queue, d);
+        append_selected(PassiveScalar::fields);
 #endif
-        }
 
-        __host__ static inline void freeAll(LBMFields &d) noexcept
-        {
+        return out;
+    }
+
+    template <dim3 grid, dim3 block, size_t dynamic>
+    __host__ static inline void launchAllDerived(
+        cudaStream_t queue,
+        LBMFields d,
+        const label_t step) noexcept
+    {
 #if TIME_AVERAGE
-                TimeAvg::free(d);
+        if (Selection::anyEnabled(TimeAverage::fields))
+        {
+            TimeAverage::launch<grid, block, dynamic>(queue, d, step);
+        }
+#endif
+
+#if REYNOLDS_MOMENTS
+        if (Selection::anyEnabled(ReynoldsMoments::fields))
+        {
+            ReynoldsMoments::launch<grid, block, dynamic>(queue, d, step);
+        }
+#endif
+
+#if VORTICITY_FIELDS
+        if (Selection::anyEnabled(VorticityFields::fields))
+        {
+            VorticityFields::launch<grid, block, dynamic>(queue, d);
+        }
+#endif
+
+#if PASSIVE_SCALAR
+        if (Selection::anyEnabled(PassiveScalar::fields))
+        {
+            PassiveScalar::launch<grid, block, dynamic>(queue, d);
+        }
+#endif
+    }
+
+    __host__ static inline void freeAll(LBMFields &d) noexcept
+    {
+#if TIME_AVERAGE
+        TimeAverage::free(d);
 #endif
 #if REYNOLDS_MOMENTS
-                Reynolds::free(d);
+        ReynoldsMoments::free(d);
 #endif
 #if VORTICITY_FIELDS
-                Vorticity::free(d);
+        VorticityFields::free(d);
 #endif
 #if PASSIVE_SCALAR
-                PassiveScalar::free(d);
+        PassiveScalar::free(d);
 #endif
-        }
+    }
 }
 
 #endif

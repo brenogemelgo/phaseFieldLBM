@@ -51,9 +51,9 @@ struct LBMFields
 #if TIME_AVERAGE
 
     scalar_t *avg_phi; // phi time average
-    // scalar_t *avg_ux;  // x velocity time average
-    // scalar_t *avg_uy;  // y velocity time average
-    scalar_t *avg_uz; // z velocity time average
+    scalar_t *avg_ux;  // x velocity time average
+    scalar_t *avg_uy;  // y velocity time average
+    scalar_t *avg_uz;  // z velocity time average
 
 #endif
 
