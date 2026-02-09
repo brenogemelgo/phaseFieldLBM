@@ -79,7 +79,8 @@ namespace host
         Vort_x,
         Vort_y,
         Vort_z,
-        Vort_mag
+        Vort_mag,
+        C,
     };
 
     enum class FieldDumpShape : std::uint8_t
@@ -177,6 +178,13 @@ namespace host
             return fields.vort_z;
         case FieldID::Vort_mag:
             return fields.vort_mag;
+
+#endif
+
+#if PASSIVE_SCALAR
+
+        case FieldID::C:
+            return fields.c;
 
 #endif
 

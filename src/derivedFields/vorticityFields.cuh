@@ -40,7 +40,6 @@ SourceFiles
 Notes
     - Assumes lattice spacing = 1 (LB units) for finite differences.
     - Boundary stencils are one-sided to avoid out-of-bounds accesses.
-      If your domain is periodic, replace the boundary handling with wrapping.
 
 \*---------------------------------------------------------------------------*/
 

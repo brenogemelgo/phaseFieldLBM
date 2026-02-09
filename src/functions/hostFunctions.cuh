@@ -257,6 +257,12 @@ namespace host
 
 #endif
 
+#if PASSIVE_SCALAR
+
+        checkCudaErrors(cudaMalloc(&fields.c, SIZE));
+
+#endif
+
         checkCudaErrors(cudaMemset(fields.rho, 0, SIZE));
         checkCudaErrors(cudaMemset(fields.ux, 0, SIZE));
         checkCudaErrors(cudaMemset(fields.uy, 0, SIZE));
@@ -295,6 +301,12 @@ namespace host
         checkCudaErrors(cudaMemset(fields.avg_uxuy, 0, SIZE));
         checkCudaErrors(cudaMemset(fields.avg_uxuz, 0, SIZE));
         checkCudaErrors(cudaMemset(fields.avg_uyuz, 0, SIZE));
+
+#endif
+
+#if PASSIVE_SCALAR
+
+        checkcudaErrors(cudaMemset(fields.c, 0, SIZE));
 
 #endif
 
