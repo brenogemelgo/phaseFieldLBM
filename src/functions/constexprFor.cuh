@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Nathan Duggins (Geoenergia Lab, UDESC)
 
 Description
-    Compile-time device loop unrolling implementation
+    Compile-time unrolled device loop via constexpr recursion
 
 SourceFiles
     constexprFor.cuh

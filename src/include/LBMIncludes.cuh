@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    General includes
+    Centralized kernel declarations for LBM initialization, core routines, and boundary conditions
 
 Namespace
     LBM

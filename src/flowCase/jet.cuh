@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Jet flow case class declaration
+    Jet flow case definition with inflow, outflow, and periodic boundary conditions
 
 Namespace
     LBM

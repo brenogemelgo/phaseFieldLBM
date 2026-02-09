@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    CUDA Graph implementation
+    CUDA Graph capture of the core phase-field and hydrodynamic LBM kernel sequence
 
 Namespace
     graph

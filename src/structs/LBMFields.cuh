@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    LBMFields struct declaration
+    Unified device field container for primary, phase-field, and optional derived LBM quantities
 
 SourceFiles
     LBMFields.cuh

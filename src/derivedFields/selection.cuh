@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Compile-time selection list for derived fields
+    Compile-time name-based selection of enabled derived fields
 
 Namespace
     Derived

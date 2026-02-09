@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    D3Q27 velocity set class declaration
+    D3Q27 velocity set with third-order equilibrium and non-equilibrium moments plus forcing
 
 SourceFiles
     D3Q27.cuh

@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Post-processing common structs
+    Common post-processing types and VTK scalar metadata utilities
 
 Namespace
     host

@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    VTS (StructuredGrid) writer function
+    VTS (StructuredGrid) writer for exporting scalar fields with explicit grid geometry
 
 Namespace
     host

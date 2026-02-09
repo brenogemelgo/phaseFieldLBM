@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Header file for the flow case classes
+    Base interface for compile-time flow case definitions
 
 Namespace
     LBM

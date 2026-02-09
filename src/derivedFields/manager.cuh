@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Derived fields RAII manager (allocation + automatic free)
+    RAII manager for conditional allocation and automatic cleanup of derived fields
 
 Namespace
     Derived

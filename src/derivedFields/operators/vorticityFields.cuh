@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Vorticity derived-field kernels (components and magnitude)
+    Vorticity component and magnitude computation via centered velocity gradients
 
 Namespace
     LBM

@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Host I/O and utility functions
+   Host-side I/O, diagnostics, and utility routines for simulation setup and data output
 
 Namespace
     host

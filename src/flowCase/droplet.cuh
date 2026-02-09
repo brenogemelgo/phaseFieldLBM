@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Droplet flow case class declaration
+    Droplet flow case definition with initialization and boundary hooks
 
 Namespace
     LBM

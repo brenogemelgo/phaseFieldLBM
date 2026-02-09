@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Passive scalar (concentration field) kernel
+    Passive scalar advection–diffusion kernel and derived field registration
 
 Namespace
     LBM

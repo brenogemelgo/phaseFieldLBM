@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Global functions used across the entire codebase
+    Global compile-time geometry, math, relaxation, and utility functions shared across the solver
 
 Namespace
     block

@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    CUDA utility functions and definitions
+    CUDA utilities for block-level tiling, precision control, and error handling
 
 Namespace
     block

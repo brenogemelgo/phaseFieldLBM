@@ -13,9 +13,11 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    A header defining the constants used in the simulation
+   Centralized compile-time configuration of velocity sets, flow cases, mesh, and physical parameters
 
-    Namespace
+Namespace
+    LBM
+    Phase
 
 SourceFiles
     constants.cuh

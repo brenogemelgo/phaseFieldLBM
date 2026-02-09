@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Field configuration and save helpers (binary output)
+   Field configuration, device-pointer access, and binary output helpers
 
 Namespace
     host

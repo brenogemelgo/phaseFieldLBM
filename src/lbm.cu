@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    CUDA kernel for Lattice Boltzmann Method routines
+    Core LBM kernels for moment computation, collision–streaming, forcing, and coupled phase-field transport
 
 Namespace
     LBM

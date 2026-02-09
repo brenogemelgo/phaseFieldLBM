@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    A class to handle field construction and destruction
+    Descriptor-driven allocator for CUDA device fields with null-safe free
 
 Namespace
     host

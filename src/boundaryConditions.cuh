@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    A class applying boundary conditions
+    Unified device-side implementation of inflow, outflow, and periodic LBM boundary conditions
 
 Namespace
     LBM

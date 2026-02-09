@@ -13,10 +13,10 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    CUDA kernels for high-order gradient (D3Q19/27) phase field
+    High-order phase-field kernels computing order parameter, interface normals, curvature, and surface-tension forcing using D3Q19/D3Q27 stencils
 
 Namespace
-    phase
+    Phase
 
 SourceFiles
     phaseField.cuh

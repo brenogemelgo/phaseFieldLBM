@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    A class to handle ?
+    RAII owner responsible for allocation and lifetime of base LBM fields
 
 Namespace
     host

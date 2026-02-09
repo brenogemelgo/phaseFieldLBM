@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Time averaging kernels
+   Time averaging of primary flow and phase fields
 
 Namespace
     LBM

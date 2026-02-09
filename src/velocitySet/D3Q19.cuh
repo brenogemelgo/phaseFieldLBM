@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    D3Q19 velocity set class declaration
+    D3Q19 velocity set with second-order equilibrium and non-equilibrium plus forcing
 
 SourceFiles
     D3Q19.cuh

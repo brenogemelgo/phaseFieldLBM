@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Header file for the velocity set classes
+    Common interface and aggregation header for LBM velocity set definitions
 
 SourceFiles
     velocitySet.cuh

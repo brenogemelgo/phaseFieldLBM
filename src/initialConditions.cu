@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Initial conditions kernels
+    Initial condition kernels for jet and droplet setups, density initialization, and equilibrium distribution assignment
 
 Namespace
     LBM

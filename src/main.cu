@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Main program file
+    Main driver orchestrating initialization, CUDA Graph execution, time stepping, boundary handling, and post-processing output
 
 SourceFiles
     main.cu
@@ -54,38 +54,34 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Size variables
-    constexpr size_t S_BYTES = host::bytesScalarGrid3D();
-    constexpr size_t F_BYTES = host::bytesFDistros();
-    constexpr size_t G_BYTES = host::bytesGDistros();
-
-    // Device fields
-    static constexpr std::array<host::FieldDescription<scalar_t>, 18> BASE_SCALAR_GRID = {{
-        {"rho", &LBMFields::rho, S_BYTES, true},
-        {"ux", &LBMFields::ux, S_BYTES, true},
-        {"uy", &LBMFields::uy, S_BYTES, true},
-        {"uz", &LBMFields::uz, S_BYTES, true},
-        {"pxx", &LBMFields::pxx, S_BYTES, true},
-        {"pyy", &LBMFields::pyy, S_BYTES, true},
-        {"pzz", &LBMFields::pzz, S_BYTES, true},
-        {"pxy", &LBMFields::pxy, S_BYTES, true},
-        {"pxz", &LBMFields::pxz, S_BYTES, true},
-        {"pyz", &LBMFields::pyz, S_BYTES, true},
-        {"phi", &LBMFields::phi, S_BYTES, true},
-        {"normx", &LBMFields::normx, S_BYTES, true},
-        {"normy", &LBMFields::normy, S_BYTES, true},
-        {"normz", &LBMFields::normz, S_BYTES, true},
-        {"ind", &LBMFields::ind, S_BYTES, true},
-        {"ffx", &LBMFields::ffx, S_BYTES, true},
-        {"ffy", &LBMFields::ffy, S_BYTES, true},
-        {"ffz", &LBMFields::ffz, S_BYTES, true},
+    // Device 3D fields
+    static constexpr std::array<host::FieldDescription<scalar_t>, 18> baseScalarGrid = {{
+        {"rho", &LBMFields::rho, host::bytesScalarGrid3D(), true},
+        {"ux", &LBMFields::ux, host::bytesScalarGrid3D(), true},
+        {"uy", &LBMFields::uy, host::bytesScalarGrid3D(), true},
+        {"uz", &LBMFields::uz, host::bytesScalarGrid3D(), true},
+        {"pxx", &LBMFields::pxx, host::bytesScalarGrid3D(), true},
+        {"pyy", &LBMFields::pyy, host::bytesScalarGrid3D(), true},
+        {"pzz", &LBMFields::pzz, host::bytesScalarGrid3D(), true},
+        {"pxy", &LBMFields::pxy, host::bytesScalarGrid3D(), true},
+        {"pxz", &LBMFields::pxz, host::bytesScalarGrid3D(), true},
+        {"pyz", &LBMFields::pyz, host::bytesScalarGrid3D(), true},
+        {"phi", &LBMFields::phi, host::bytesScalarGrid3D(), true},
+        {"normx", &LBMFields::normx, host::bytesScalarGrid3D(), true},
+        {"normy", &LBMFields::normy, host::bytesScalarGrid3D(), true},
+        {"normz", &LBMFields::normz, host::bytesScalarGrid3D(), true},
+        {"ind", &LBMFields::ind, host::bytesScalarGrid3D(), true},
+        {"ffx", &LBMFields::ffx, host::bytesScalarGrid3D(), true},
+        {"ffy", &LBMFields::ffy, host::bytesScalarGrid3D(), true},
+        {"ffz", &LBMFields::ffz, host::bytesScalarGrid3D(), true},
     }};
 
-    static constexpr host::FieldDescription<pop_t> F_DIST = {"f", &LBMFields::f, F_BYTES, true};
-    static constexpr host::FieldDescription<scalar_t> G_DIST = {"g", &LBMFields::g, G_BYTES, true};
+    // Distribution functions
+    static constexpr host::FieldDescription<pop_t> fDist = {"f", &LBMFields::f, host::bytesFDistros(), true};
+    static constexpr host::FieldDescription<scalar_t> gDist = {"g", &LBMFields::g, host::bytesGDistros(), true};
 
     // Allocate device fields
-    host::BaseFieldsOwner baseOwner(fields, BASE_SCALAR_GRID, F_DIST, G_DIST);
+    host::BaseFieldsOwner baseOwner(fields, baseScalarGrid, fDist, gDist);
 
     // Construct derived fields manager
     Derived::Manager derived;

@@ -13,10 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    D3Q7 velocity set class declaration
-
-Note
-    This velocity set is built around the phase field requirements
+    D3Q7 velocity set tailored for phase-field advection–diffusion dynamics
 
 SourceFiles
     D3Q7.cuh

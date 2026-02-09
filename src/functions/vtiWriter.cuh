@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    VTI (ImageData) writer function
+    VTI (ImageData) writer for aggregating binary grid fields into a single visualization file
 
 Namespace
     host

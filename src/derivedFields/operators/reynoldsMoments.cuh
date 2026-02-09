@@ -13,7 +13,7 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Reynolds moments kernels
+    Computation of Reynolds stress moments via incremental time averaging
 
 Namespace
     LBM
