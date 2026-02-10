@@ -13,13 +13,13 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    CHECKPOINT
+    Manages allocation, execution, and output configuration of optional derived fields computed from the primary LBM solution
 
 Namespace
     Derived
 
 Source files
-    derivedFields.cuh
+    DerivedFields.cuh
 
 \*---------------------------------------------------------------------------*/
 

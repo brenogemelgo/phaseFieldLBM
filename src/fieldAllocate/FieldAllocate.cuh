@@ -19,7 +19,7 @@ Namespace
     host
 
 SourceFiles
-    fieldAllocator.cuh
+    FieldAllocate.cuh
 
 \*---------------------------------------------------------------------------*/
 

@@ -28,7 +28,7 @@ SourceFiles
 #include "functions/vtiWriter.cuh"
 #include "cuda/CUDAGraph.cuh"
 #include "initialConditions.cu"
-#include "boundaryConditions.cuh"
+#include "BoundaryConditions.cuh"
 #include "phaseField.cuh"
 #include "derivedFields/DerivedFields.cuh"
 #include "lbm.cu"

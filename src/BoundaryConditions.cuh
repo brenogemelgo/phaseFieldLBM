@@ -19,7 +19,7 @@ Namespace
     LBM
 
 SourceFiles
-    boundaryConditions.cuh
+    BoundaryConditions.cuh
 
 \*---------------------------------------------------------------------------*/
 
