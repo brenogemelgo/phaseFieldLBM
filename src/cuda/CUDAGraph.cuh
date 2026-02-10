@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -46,8 +46,8 @@ namespace graph
         Phase::computeForces<<<grid, block, dynamic, queue>>>(fields);
 
         // Hydrodynamics
-        LBM::computeMoments<<<grid, block, dynamic, queue>>>(fields);
-        LBM::streamCollide<<<grid, block, dynamic, queue>>>(fields);
+        lbm::computeMoments<<<grid, block, dynamic, queue>>>(fields);
+        lbm::streamCollide<<<grid, block, dynamic, queue>>>(fields);
 
         // NOTE: We intentionally DO NOT include boundary conditions or
         // derived fields here, because they depend on STEP and/or other

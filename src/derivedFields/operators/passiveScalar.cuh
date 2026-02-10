@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -16,9 +16,9 @@ Description
     Passive scalar advection–diffusion kernel and derived field registration
 
 Namespace
-    LBM
-    Derived
-    PassiveScalar
+    lbm
+    derived
+    passive
 
 SourceFiles
     passiveScalar.cuh
@@ -32,7 +32,7 @@ SourceFiles
 
 #if PASSIVE_SCALAR
 
-namespace LBM
+namespace lbm
 {
     __global__ void advectDiffuse(LBMFields d)
     {
@@ -41,9 +41,9 @@ namespace LBM
     }
 }
 
-namespace Derived
+namespace derived
 {
-    namespace PassiveScalar
+    namespace passive
     {
         constexpr std::array<host::FieldConfig, 1> fields{{
             {host::FieldID::C, "c", host::FieldDumpShape::Grid3D, true},
@@ -55,7 +55,7 @@ namespace Derived
             LBMFields d) noexcept
         {
 #if PASSIVE_SCALAR
-            LBM::advectDiffuse<<<grid, block, dynamic, queue>>>(d);
+            lbm::advectDiffuse<<<grid, block, dynamic, queue>>>(d);
 #endif
         }
 

@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -87,8 +87,8 @@ namespace host
     __host__ [[gnu::cold]] static inline void printDiagnostics(const std::string &VELOCITY_SET) noexcept
     {
         const double nu = static_cast<double>(physics::u_inf) * static_cast<double>(mesh::diam) / static_cast<double>(physics::reynolds_oil);
-        const double Ma = static_cast<double>(physics::u_inf) * static_cast<double>(LBM::velocitySet::as2());
-        const double tau = static_cast<double>(0.5) + static_cast<double>(nu) * static_cast<double>(LBM::velocitySet::as2());
+        const double Ma = static_cast<double>(physics::u_inf) * static_cast<double>(lbm::velocitySet::as2());
+        const double tau = static_cast<double>(0.5) + static_cast<double>(nu) * static_cast<double>(lbm::velocitySet::as2());
 
         std::cout << "\n---------------------------- SIMULATION METADATA ----------------------------\n"
                   << "Velocity set:        " << VELOCITY_SET << '\n'
@@ -186,7 +186,7 @@ namespace host
 
     __host__ [[nodiscard]] static inline constexpr size_t bytesFDistros() noexcept
     {
-        return static_cast<size_t>(size::cells()) * static_cast<size_t>(LBM::velocitySet::Q()) * sizeof(pop_t);
+        return static_cast<size_t>(size::cells()) * static_cast<size_t>(lbm::velocitySet::Q()) * sizeof(pop_t);
     }
 
     __host__ [[nodiscard]] static inline constexpr size_t bytesGDistros() noexcept

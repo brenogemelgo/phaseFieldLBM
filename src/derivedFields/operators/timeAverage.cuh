@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -16,9 +16,9 @@ Description
    Time averaging of primary flow and phase fields
 
 Namespace
-    LBM
-    Derived
-    TimeAverage
+    lbm
+    derived
+    average
 
 SourceFiles
     timeAverage.cuh
@@ -32,7 +32,7 @@ SourceFiles
 
 #if TIME_AVERAGE
 
-namespace LBM
+namespace lbm
 {
     __global__ void timeAverage(
         LBMFields d,
@@ -82,9 +82,9 @@ namespace LBM
     }
 }
 
-namespace Derived
+namespace derived
 {
-    namespace TimeAverage
+    namespace average
     {
         constexpr std::array<host::FieldConfig, 4> fields{{
             {host::FieldID::Avg_phi, "avg_phi", host::FieldDumpShape::Grid3D, true},
@@ -100,7 +100,7 @@ namespace Derived
             const label_t t) noexcept
         {
 #if TIME_AVERAGE
-            LBM::timeAverage<<<grid, block, dynamic, queue>>>(d, t + 1);
+            lbm::timeAverage<<<grid, block, dynamic, queue>>>(d, t + 1);
 #endif
         }
 

@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -16,9 +16,9 @@ Description
     Computation of Reynolds stress moments via incremental time averaging
 
 Namespace
-    LBM
-    Derived
-    ReynoldsMoments
+    lbm
+    derived
+    reynolds
 
 SourceFiles
     reynoldsMoments.cuh
@@ -32,7 +32,7 @@ SourceFiles
 
 #if REYNOLDS_MOMENTS
 
-namespace LBM
+namespace lbm
 {
     __global__ void reynoldsMomentsAverage(
         LBMFields d,
@@ -96,9 +96,9 @@ namespace LBM
     }
 }
 
-namespace Derived
+namespace derived
 {
-    namespace ReynoldsMoments
+    namespace reynolds
     {
         constexpr std::array<host::FieldConfig, 6> fields{{
             {host::FieldID::Avg_uxux, "avg_uxux", host::FieldDumpShape::Grid3D, true},
@@ -115,7 +115,7 @@ namespace Derived
             LBMFields d,
             const label_t t) noexcept
         {
-            LBM::reynoldsMomentsAverage<<<grid, block, dynamic, queue>>>(d, t + 1);
+            lbm::reynoldsMomentsAverage<<<grid, block, dynamic, queue>>>(d, t + 1);
         }
 
         __host__ static inline void free(LBMFields &d) noexcept

@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
     host::FieldAllocate baseOwner(fields, baseScalarGrid, fDist, gDist);
 
     // Construct derived fields
-    Derived::DerivedFields derived;
-    derived.allocate(fields);
+    derived::DerivedFields dfields;
+    dfields.allocate(fields);
 
     // Block-wise configuration
     constexpr dim3 block3D(block::nx, block::ny, block::nz);
@@ -111,9 +111,9 @@ int main(int argc, char *argv[])
     checkCudaErrorsOutline(cudaStreamCreate(&queue));
 
     // Initial conditions
-    LBM::setInitialDensity<<<grid3D, block3D, dynamic, queue>>>(fields);
-    LBM::flowCase::initialConditions<grid3D, block3D, dynamic>(fields, queue);
-    LBM::setDistros<<<grid3D, block3D, dynamic, queue>>>(fields);
+    lbm::setInitialDensity<<<grid3D, block3D, dynamic, queue>>>(fields);
+    lbm::flowCase::initialConditions<grid3D, block3D, dynamic>(fields, queue);
+    lbm::setDistros<<<grid3D, block3D, dynamic, queue>>>(fields);
 
     // Make sure everything is initialized
     checkCudaErrorsOutline(cudaDeviceSynchronize());
@@ -123,7 +123,6 @@ int main(int argc, char *argv[])
     host::printDiagnostics(VELOCITY_SET);
 
 #if !BENCHMARK
-
     // Post-processing instance
     host::PostProcess post;
 
@@ -133,7 +132,7 @@ int main(int argc, char *argv[])
          {host::FieldID::Rho, "rho", host::FieldDumpShape::Grid3D, true}}};
 
     // Derived fields from modules (possibly empty)
-    const auto DERIVED_FIELDS = derived.makeOutputFields();
+    const auto DERIVED_FIELDS = dfields.makeOutputFields();
 
     // Compose final list in a vector
     std::vector<host::FieldConfig> OUTPUT_FIELDS;
@@ -146,7 +145,6 @@ int main(int argc, char *argv[])
     {
         cfg.includeInPost = (cfg.shape == host::FieldDumpShape::Grid3D);
     }
-
 #endif
 
     // Warmup (optional)
@@ -167,16 +165,15 @@ int main(int argc, char *argv[])
         cudaGraphLaunch(graphExec, queue);
 
         // Flow case specific boundary conditions
-        LBM::flowCase::boundaryConditions<gridX, blockX, gridY, blockY, gridZ, blockZ, dynamic>(fields, queue, STEP);
+        lbm::flowCase::boundaryConditions<gridX, blockX, gridY, blockY, gridZ, blockZ, dynamic>(fields, queue, STEP);
 
         // Ensure debug output is complete before host logic
         cudaStreamSynchronize(queue);
 
         // Derived fields
-        derived.launch<grid3D, block3D, dynamic>(queue, fields, STEP);
+        dfields.launch<grid3D, block3D, dynamic>(queue, fields, STEP);
 
 #if !BENCHMARK
-
         const bool isOutputStep = (STEP % MACRO_SAVE == 0) || (STEP == NSTEPS);
 
         if (isOutputStep)
@@ -186,7 +183,6 @@ int main(int argc, char *argv[])
             post.writeBins(OUTPUT_FIELDS, SIM_DIR, STEP, fields);
             post.writeVTI(OUTPUT_FIELDS, SIM_DIR, STEP);
         }
-
 #endif
     }
 

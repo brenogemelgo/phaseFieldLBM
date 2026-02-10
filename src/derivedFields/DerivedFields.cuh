@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -16,7 +16,7 @@ Description
     Manages allocation, execution, and output configuration of optional derived fields computed from the primary LBM solution
 
 Namespace
-    Derived
+    derived
 
 Source files
     DerivedFields.cuh
@@ -35,7 +35,7 @@ Source files
 #include "operators/vorticityFields.cuh"
 #include "operators/passiveScalar.cuh"
 
-namespace Derived
+namespace derived
 {
     class DerivedFields
     {
@@ -62,7 +62,7 @@ namespace Derived
             A.resetByteCounter();
 
 #if TIME_AVERAGE
-            if (anyEnabled(TimeAverage::fields))
+            if (anyEnabled(average::fields))
             {
                 if (enabledName("avg_phi"))
                 {
@@ -84,7 +84,7 @@ namespace Derived
 #endif
 
 #if REYNOLDS_MOMENTS
-            if (anyEnabled(ReynoldsMoments::fields))
+            if (anyEnabled(reynolds::fields))
             {
                 if (enabledName("avg_uxux"))
                 {
@@ -114,7 +114,7 @@ namespace Derived
 #endif
 
 #if VORTICITY_FIELDS
-            if (anyEnabled(VorticityFields::fields))
+            if (anyEnabled(vorticity::fields))
             {
                 if (enabledName("vort_x"))
                 {
@@ -136,7 +136,7 @@ namespace Derived
 #endif
 
 #if PASSIVE_SCALAR
-            if (anyEnabled(PassiveScalar::fields))
+            if (anyEnabled(passive::fields))
             {
                 if (enabledName("c"))
                 {
@@ -150,27 +150,27 @@ namespace Derived
         __host__ inline void launch(cudaStream_t queue, LBMFields d, const label_t step) const noexcept
         {
 #if TIME_AVERAGE
-            if (anyEnabled(TimeAverage::fields))
+            if (anyEnabled(average::fields))
             {
-                TimeAverage::launch<grid, block, dynamic>(queue, d, step);
+                average::launch<grid, block, dynamic>(queue, d, step);
             }
 #endif
 #if REYNOLDS_MOMENTS
-            if (anyEnabled(ReynoldsMoments::fields))
+            if (anyEnabled(reynolds::fields))
             {
-                ReynoldsMoments::launch<grid, block, dynamic>(queue, d, step);
+                reynolds::launch<grid, block, dynamic>(queue, d, step);
             }
 #endif
 #if VORTICITY_FIELDS
-            if (anyEnabled(VorticityFields::fields))
+            if (anyEnabled(vorticity::fields))
             {
-                VorticityFields::launch<grid, block, dynamic>(queue, d);
+                vorticity::launch<grid, block, dynamic>(queue, d);
             }
 #endif
 #if PASSIVE_SCALAR
-            if (anyEnabled(PassiveScalar::fields))
+            if (anyEnabled(passive::fields))
             {
-                PassiveScalar::launch<grid, block, dynamic>(queue, d);
+                passive::launch<grid, block, dynamic>(queue, d);
             }
 #endif
         }
@@ -181,30 +181,30 @@ namespace Derived
 
             out.reserve(
 #if TIME_AVERAGE
-                TimeAverage::fields.size() +
+                average::fields.size() +
 #endif
 #if REYNOLDS_MOMENTS
-                ReynoldsMoments::fields.size() +
+                reynolds::fields.size() +
 #endif
 #if VORTICITY_FIELDS
-                VorticityFields::fields.size() +
+                vorticity::fields.size() +
 #endif
 #if PASSIVE_SCALAR
-                PassiveScalar::fields.size() +
+                passive::fields.size() +
 #endif
                 0u);
 
 #if TIME_AVERAGE
-            appendEnabled(out, TimeAverage::fields);
+            appendEnabled(out, average::fields);
 #endif
 #if REYNOLDS_MOMENTS
-            appendEnabled(out, ReynoldsMoments::fields);
+            appendEnabled(out, reynolds::fields);
 #endif
 #if VORTICITY_FIELDS
-            appendEnabled(out, VorticityFields::fields);
+            appendEnabled(out, vorticity::fields);
 #endif
 #if PASSIVE_SCALAR
-            appendEnabled(out, PassiveScalar::fields);
+            appendEnabled(out, passive::fields);
 #endif
 
             return out;

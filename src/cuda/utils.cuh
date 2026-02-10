@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -64,7 +64,7 @@ namespace block
     static constexpr int tile_nz = static_cast<int>(nz) + 2 * pad;
 }
 
-using label_t = uint64_t;
+using label_t = uint32_t;
 using scalar_t = float;
 
 #if ENABLE_FP16
@@ -111,8 +111,7 @@ __host__ static void __checkCudaErrorsOutline(
 {
     if (err != cudaSuccess)
     {
-        fprintf(
-            stderr, "CUDA error at %s(%d) \"%s\": [%d] %s.\n", file, line, func, (int)err, cudaGetErrorString(err));
+        fprintf(stderr, "CUDA error at %s(%d) \"%s\": [%d] %s.\n", file, line, func, static_cast<int>(err), cudaGetErrorString(err));
         fflush(stderr);
         std::abort();
     }
@@ -126,8 +125,7 @@ __host__ static void __getLastCudaErrorOutline(
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess)
     {
-        fprintf(stderr, "CUDA error at %s(%d): [%d] %s. Context: %s\n",
-                file, line, (int)err, cudaGetErrorString(err), errorMessage);
+        fprintf(stderr, "CUDA error at %s(%d): [%d] %s. Context: %s\n", file, line, static_cast<int>(err), cudaGetErrorString(err), errorMessage);
         fflush(stderr);
         std::abort();
     }
@@ -141,8 +139,7 @@ __host__ static inline void __checkCudaErrors(
 {
     if (err != cudaSuccess)
     {
-        fprintf(stderr, "CUDA error at %s(%d) \"%s\": [%d] %s.\n",
-                file, line, func, (int)err, cudaGetErrorString(err));
+        fprintf(stderr, "CUDA error at %s(%d) \"%s\": [%d] %s.\n", file, line, func, static_cast<int>(err), cudaGetErrorString(err));
         fflush(stderr);
         std::abort();
     }

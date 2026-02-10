@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -33,7 +33,7 @@ SourceFiles
 #include "velocitySet/VelocitySet.cuh"
 #include "flowCase/FlowCase.cuh"
 
-namespace LBM
+namespace lbm
 {
 #if defined(VS_D3Q19)
     using velocitySet = D3Q19;
@@ -50,7 +50,7 @@ namespace LBM
 
 namespace Phase
 {
-    using velocitySet = LBM::D3Q7;
+    using velocitySet = lbm::D3Q7;
 }
 
 // #define RUN_MODE
@@ -134,7 +134,7 @@ namespace physics
     static constexpr scalar_t gamma = kappa / Phase::velocitySet::cs2();
 
     static constexpr scalar_t tau = static_cast<scalar_t>(0.55);
-    static constexpr scalar_t visc_ref = (tau - static_cast<scalar_t>(0.5)) / LBM::velocitySet::as2();
+    static constexpr scalar_t visc_ref = (tau - static_cast<scalar_t>(0.5)) / lbm::velocitySet::as2();
 }
 
 #endif

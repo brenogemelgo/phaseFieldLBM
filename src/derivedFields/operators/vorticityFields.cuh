@@ -1,9 +1,9 @@
 /*---------------------------------------------------------------------------*\
 |                                                                             |
-| MULTIC-TS-LBM: CUDA-based multicomponent Lattice Boltzmann Method           |
+| phaseFieldLBM: CUDA-based multicomponent Lattice Boltzmann Method           |
 | Developed at UDESC - State University of Santa Catarina                     |
 | Website: https://www.udesc.br                                               |
-| Github: https://github.com/brenogemelgo/MULTIC-TS-LBM                       |
+| Github: https://github.com/brenogemelgo/phaseFieldLBM                       |
 |                                                                             |
 \*---------------------------------------------------------------------------*/
 
@@ -16,9 +16,9 @@ Description
     Vorticity component and magnitude computation via centered velocity gradients
 
 Namespace
-    LBM
-    Derived
-    VorticityFields
+    lbm
+    derived
+    vorticity
 
 SourceFiles
     vorticityFields.cuh
@@ -32,7 +32,7 @@ SourceFiles
 
 #if VORTICITY_FIELDS
 
-namespace LBM
+namespace lbm
 {
     __global__ void vorticityCompute(LBMFields d)
     {
@@ -105,9 +105,9 @@ namespace LBM
     }
 }
 
-namespace Derived
+namespace derived
 {
-    namespace VorticityFields
+    namespace vorticity
     {
         constexpr std::array<host::FieldConfig, 4> fields{{
             {host::FieldID::Vort_x, "vort_x", host::FieldDumpShape::Grid3D, true},
@@ -121,7 +121,7 @@ namespace Derived
             cudaStream_t queue,
             LBMFields d) noexcept
         {
-            LBM::vorticityCompute<<<grid, block, dynamic, queue>>>(d);
+            lbm::vorticityCompute<<<grid, block, dynamic, queue>>>(d);
         }
 
         __host__ static inline void free(LBMFields &d) noexcept
