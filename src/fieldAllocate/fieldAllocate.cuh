@@ -33,22 +33,78 @@ namespace host
     template <typename T>
     struct FieldDescription
     {
-        const char *name;
-        T *LBMFields::*member;
-        size_t bytes;
-        bool zero;
+        const char *name = nullptr;
+        T *LBMFields::*member = nullptr;
+        size_t bytes = 0;
+        bool zero = false;
     };
 
     class FieldAllocate
     {
     public:
         FieldAllocate() = default;
+
+        template <size_t NScalar>
+        __host__ FieldAllocate(
+            LBMFields &f,
+            const std::array<FieldDescription<scalar_t>, NScalar> &scalarGrid,
+            const FieldDescription<pop_t> &fDist,
+            const FieldDescription<scalar_t> &gDist)
+            : owned_(&f),
+              owning_(true),
+              scalarOwned_(scalarGrid.begin(), scalarGrid.end()),
+              fOwned_(fDist),
+              gOwned_(gDist)
+        {
+            resetByteCounter();
+
+            alloc_many(*owned_, scalarGrid);
+            alloc(*owned_, fOwned_);
+            alloc(*owned_, gOwned_);
+
+            getLastCudaErrorOutline("FieldAllocate: own+alloc");
+        }
+
         FieldAllocate(const FieldAllocate &) = delete;
         FieldAllocate &operator=(const FieldAllocate &) = delete;
+
+        FieldAllocate(FieldAllocate &&) = delete;
+        FieldAllocate &operator=(FieldAllocate &&) = delete;
+
+        __host__ ~FieldAllocate() noexcept
+        {
+            if (!owning_ || owned_ == nullptr)
+            {
+                return;
+            }
+
+            free(*owned_, fOwned_);
+            free(*owned_, gOwned_);
+
+            for (const auto &d : scalarOwned_)
+            {
+                free(*owned_, d);
+            }
+
+            getLastCudaErrorOutline("FieldAllocate: own+free");
+        }
+
+        __host__ void release() noexcept
+        {
+            owning_ = false;
+            owned_ = nullptr;
+            scalarOwned_.clear();
+        }
+
+        __host__ void resetByteCounter() noexcept { bytes_allocated_ = 0; }
+        __host__ [[nodiscard]] size_t bytesAllocated() const noexcept { return bytes_allocated_; }
 
         template <typename T>
         __host__ void alloc(LBMFields &f, const FieldDescription<T> &d)
         {
+            using MemberT = std::remove_reference_t<decltype(f.*(d.member))>;
+            static_assert(std::is_same_v<MemberT, T *>, "FieldDescription member type must be T*");
+
             T *&ptr = f.*(d.member);
             if (ptr != nullptr)
             {
@@ -57,7 +113,7 @@ namespace host
 
             checkCudaErrorsOutline(cudaMalloc(&ptr, d.bytes));
 
-            if (d.zero)
+            if (d.zero && d.bytes > 0)
             {
                 checkCudaErrorsOutline(cudaMemset(ptr, 0, d.bytes));
             }
@@ -94,12 +150,17 @@ namespace host
             }
         }
 
-        __host__ [[nodiscard]] size_t bytesAllocated() const noexcept { return bytes_allocated_; }
-        __host__ void resetByteCounter() noexcept { bytes_allocated_ = 0; }
-
     private:
         size_t bytes_allocated_ = 0;
+
+        LBMFields *owned_ = nullptr;
+        bool owning_ = false;
+
+        std::vector<FieldDescription<scalar_t>> scalarOwned_;
+        FieldDescription<pop_t> fOwned_{};
+        FieldDescription<scalar_t> gOwned_{};
     };
+
 }
 
 #endif

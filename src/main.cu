@@ -21,7 +21,7 @@ SourceFiles
 \*---------------------------------------------------------------------------*/
 
 #include "functions/deviceFunctions.cuh"
-#include "fieldAllocate/baseFieldsOwner.cuh"
+#include "fieldAllocate/fieldAllocate.cuh"
 #include "functions/hostFunctions.cuh"
 #include "functions/ioFields.cuh"
 #include "functions/vtsWriter.cuh"
@@ -30,8 +30,7 @@ SourceFiles
 #include "initialConditions.cu"
 #include "boundaryConditions.cuh"
 #include "phaseField.cuh"
-#include "derivedFields/registry.cuh"
-#include "derivedFields/manager.cuh"
+#include "derivedFields/derivedFields.cuh"
 #include "lbm.cu"
 
 int main(int argc, char *argv[])
@@ -76,15 +75,15 @@ int main(int argc, char *argv[])
         {"ffz", &LBMFields::ffz, host::bytesScalarGrid3D(), true},
     }};
 
-    // Distribution functions
+    // Device distribution functions
     static constexpr host::FieldDescription<pop_t> fDist = {"f", &LBMFields::f, host::bytesFDistros(), true};
     static constexpr host::FieldDescription<scalar_t> gDist = {"g", &LBMFields::g, host::bytesGDistros(), true};
 
-    // Allocate device fields
-    host::BaseFieldsOwner baseOwner(fields, baseScalarGrid, fDist, gDist);
+    // Allocate all device fields
+    host::FieldAllocate baseOwner(fields, baseScalarGrid, fDist, gDist);
 
-    // Construct derived fields manager
-    Derived::Manager derived;
+    // Construct derived fields
+    Derived::DerivedFields derived;
     derived.allocate(fields);
 
     // Block-wise configuration
@@ -136,7 +135,7 @@ int main(int argc, char *argv[])
          {host::FieldID::Rho, "rho", host::FieldDumpShape::Grid3D, true}}};
 
     // Derived fields from modules (possibly empty)
-    const auto DERIVED_FIELDS = Derived::makeOutputFields();
+    const auto DERIVED_FIELDS = derived.makeOutputFields();
 
     // Compose final list in a vector
     std::vector<host::FieldConfig> OUTPUT_FIELDS;
@@ -176,9 +175,7 @@ int main(int argc, char *argv[])
         cudaStreamSynchronize(queue);
 
         // Derived fields
-#if TIME_AVERAGE || REYNOLDS_MOMENTS || VORTICITY_FIELDS || PASSIVE_SCALAR
-        Derived::launchAllDerived<grid3D, block3D, dynamic>(queue, fields, STEP);
-#endif
+        derived.launch<grid3D, block3D, dynamic>(queue, fields, STEP);
 
 #if !BENCHMARK
 
