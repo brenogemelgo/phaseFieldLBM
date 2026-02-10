@@ -81,8 +81,7 @@ namespace host
         bool includeInPost;
     };
 
-    // OOP-friendly: no dependency on global `fields`.
-    __host__ [[nodiscard]] static inline scalar_t *getDeviceFieldPointer(
+    __host__ [[nodiscard]] static inline const scalar_t *getDeviceFieldPointer(
         const LBMFields &f,
         const FieldID id) noexcept
     {

@@ -24,8 +24,7 @@ SourceFiles
 #include "fieldAllocate/FieldAllocate.cuh"
 #include "functions/hostFunctions.cuh"
 #include "functions/ioFields.cuh"
-#include "functions/vtsWriter.cuh"
-#include "functions/vtiWriter.cuh"
+#include "postProcess/PostProcess.cuh"
 #include "cuda/CUDAGraph.cuh"
 #include "initialConditions.cu"
 #include "BoundaryConditions.cuh"
@@ -125,9 +124,8 @@ int main(int argc, char *argv[])
 
 #if !BENCHMARK
 
-    // Initialize thread for asynchronous VTS generation
-    std::vector<std::thread> vtk_threads;
-    vtk_threads.reserve(NSTEPS / MACRO_SAVE + 2);
+    // Post-processing instance
+    host::PostProcess post;
 
     // Base fields (always saved)
     constexpr std::array<host::FieldConfig, 2> BASE_FIELDS{
@@ -184,36 +182,13 @@ int main(int argc, char *argv[])
         if (isOutputStep)
         {
             checkCudaErrors(cudaStreamSynchronize(queue));
-
-            const auto step_copy = STEP;
-
-            host::saveConfiguredFields(OUTPUT_FIELDS, SIM_DIR, step_copy, fields);
-
-            vtk_threads.emplace_back(
-                [step_copy,
-                 fieldsCfg = OUTPUT_FIELDS,
-                 sim_dir = SIM_DIR]
-                {
-                    host::writeImageData(fieldsCfg, sim_dir, step_copy);
-                });
-
             std::cout << "Step " << STEP << ": bins in " << SIM_DIR << "\n";
+            post.writeBins(OUTPUT_FIELDS, SIM_DIR, STEP, fields);
+            post.writeVTI(OUTPUT_FIELDS, SIM_DIR, STEP);
         }
 
 #endif
     }
-
-#if !BENCHMARK
-
-    for (auto &t : vtk_threads)
-    {
-        if (t.joinable())
-        {
-            t.join();
-        }
-    }
-
-#endif
 
     // Make sure everything is done on the GPU
     cudaStreamSynchronize(queue);
