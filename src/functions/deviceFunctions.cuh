@@ -118,7 +118,7 @@ namespace device
 
     // __device__ [[nodiscard]] static inline scalar_t visc_sponge(const label_t z) noexcept
     // {
-    //     if constexpr (LBM::FlowCase::jet_case())
+    //     if constexpr (LBM::flowCase::jet_case())
     //     {
     //         const scalar_t zn = static_cast<scalar_t>(z) * sponge::inv_nz_m1();
     //         const scalar_t s = math::min(math::max((zn - sponge::z_start()) * sponge::inv_sponge(), static_cast<scalar_t>(0)), static_cast<scalar_t>(1));
@@ -128,7 +128,7 @@ namespace device
 
     //         return relaxation::omega_from_nu(nu_s);
     //     }
-    //     else if constexpr (LBM::FlowCase::droplet_case())
+    //     else if constexpr (LBM::flowCase::droplet_case())
     //     {
     //         return 0;
     //     }

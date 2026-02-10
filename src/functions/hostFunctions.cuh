@@ -87,8 +87,8 @@ namespace host
     __host__ [[gnu::cold]] static inline void printDiagnostics(const std::string &VELOCITY_SET) noexcept
     {
         const double nu = static_cast<double>(physics::u_inf) * static_cast<double>(mesh::diam) / static_cast<double>(physics::reynolds_oil);
-        const double Ma = static_cast<double>(physics::u_inf) * static_cast<double>(LBM::VelocitySet::as2());
-        const double tau = static_cast<double>(0.5) + static_cast<double>(nu) * static_cast<double>(LBM::VelocitySet::as2());
+        const double Ma = static_cast<double>(physics::u_inf) * static_cast<double>(LBM::velocitySet::as2());
+        const double tau = static_cast<double>(0.5) + static_cast<double>(nu) * static_cast<double>(LBM::velocitySet::as2());
 
         std::cout << "\n---------------------------- SIMULATION METADATA ----------------------------\n"
                   << "Velocity set:        " << VELOCITY_SET << '\n'
@@ -186,12 +186,12 @@ namespace host
 
     __host__ [[nodiscard]] static inline constexpr size_t bytesFDistros() noexcept
     {
-        return static_cast<size_t>(size::cells()) * static_cast<size_t>(LBM::VelocitySet::Q()) * sizeof(pop_t);
+        return static_cast<size_t>(size::cells()) * static_cast<size_t>(LBM::velocitySet::Q()) * sizeof(pop_t);
     }
 
     __host__ [[nodiscard]] static inline constexpr size_t bytesGDistros() noexcept
     {
-        return static_cast<size_t>(size::cells()) * static_cast<size_t>(Phase::VelocitySet::Q()) * sizeof(scalar_t);
+        return static_cast<size_t>(size::cells()) * static_cast<size_t>(Phase::velocitySet::Q()) * sizeof(scalar_t);
     }
 }
 

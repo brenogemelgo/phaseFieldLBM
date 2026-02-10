@@ -76,25 +76,25 @@ namespace LBM
 
             const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
 
-            device::constexpr_for<0, VelocitySet::Q()>(
+            device::constexpr_for<0, velocitySet::Q()>(
                 [&](const auto Q)
                 {
-                    if constexpr (VelocitySet::cz<Q>() == 1)
+                    if constexpr (velocitySet::cz<Q>() == 1)
                     {
-                        const label_t xx = x + static_cast<label_t>(VelocitySet::cx<Q>());
-                        const label_t yy = y + static_cast<label_t>(VelocitySet::cy<Q>());
+                        const label_t xx = x + static_cast<label_t>(velocitySet::cx<Q>());
+                        const label_t yy = y + static_cast<label_t>(velocitySet::cy<Q>());
 
                         const label_t fluidNode = device::global3(xx, yy, 1);
 
-                        constexpr scalar_t w = VelocitySet::w<Q>();
-                        constexpr scalar_t cx = static_cast<scalar_t>(VelocitySet::cx<Q>());
-                        constexpr scalar_t cy = static_cast<scalar_t>(VelocitySet::cy<Q>());
-                        constexpr scalar_t cz = static_cast<scalar_t>(VelocitySet::cz<Q>());
+                        constexpr scalar_t w = velocitySet::w<Q>();
+                        constexpr scalar_t cx = static_cast<scalar_t>(velocitySet::cx<Q>());
+                        constexpr scalar_t cy = static_cast<scalar_t>(velocitySet::cy<Q>());
+                        constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
 
-                        const scalar_t cu = VelocitySet::as2() * (cx * ux + cy * uy + cz * uz);
+                        const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
 
-                        const scalar_t feq = VelocitySet::f_eq<Q>(rho, uu, cu);
-                        const scalar_t fneq = VelocitySet::f_neq<Q>(d.pxx[fluidNode], d.pyy[fluidNode], d.pzz[fluidNode],
+                        const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
+                        const scalar_t fneq = velocitySet::f_neq<Q>(d.pxx[fluidNode], d.pyy[fluidNode], d.pzz[fluidNode],
                                                                     d.pxy[fluidNode], d.pxz[fluidNode], d.pyz[fluidNode],
                                                                     d.ux[fluidNode], d.uy[fluidNode], d.uz[fluidNode]);
 
@@ -102,7 +102,7 @@ namespace LBM
                     }
                 });
 
-            d.g[5 * size::cells() + idx3_zp1] = Phase::VelocitySet::w<5>() * phi * (static_cast<scalar_t>(1) + Phase::VelocitySet::as2() * uz);
+            d.g[5 * size::cells() + idx3_zp1] = Phase::velocitySet::w<5>() * phi * (static_cast<scalar_t>(1) + Phase::velocitySet::as2() * uz);
         }
 
         __device__ static inline void applyOutflow(LBMFields d) noexcept
@@ -132,25 +132,25 @@ namespace LBM
 
             const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
 
-            device::constexpr_for<0, VelocitySet::Q()>(
+            device::constexpr_for<0, velocitySet::Q()>(
                 [&](const auto Q)
                 {
-                    if constexpr (VelocitySet::cz<Q>() == -1)
+                    if constexpr (velocitySet::cz<Q>() == -1)
                     {
-                        const label_t xx = x + static_cast<label_t>(VelocitySet::cx<Q>());
-                        const label_t yy = y + static_cast<label_t>(VelocitySet::cy<Q>());
+                        const label_t xx = x + static_cast<label_t>(velocitySet::cx<Q>());
+                        const label_t yy = y + static_cast<label_t>(velocitySet::cy<Q>());
 
                         const label_t fluidNode = device::global3(xx, yy, mesh::nz - 2);
 
-                        constexpr scalar_t w = VelocitySet::w<Q>();
-                        constexpr scalar_t cx = static_cast<scalar_t>(VelocitySet::cx<Q>());
-                        constexpr scalar_t cy = static_cast<scalar_t>(VelocitySet::cy<Q>());
-                        constexpr scalar_t cz = static_cast<scalar_t>(VelocitySet::cz<Q>());
+                        constexpr scalar_t w = velocitySet::w<Q>();
+                        constexpr scalar_t cx = static_cast<scalar_t>(velocitySet::cx<Q>());
+                        constexpr scalar_t cy = static_cast<scalar_t>(velocitySet::cy<Q>());
+                        constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
 
-                        const scalar_t cu = VelocitySet::as2() * (cx * ux + cy * uy + cz * uz);
+                        const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
 
-                        const scalar_t feq = VelocitySet::f_eq<Q>(rho, uu, cu);
-                        const scalar_t fneq = VelocitySet::f_neq<Q>(d.pxx[fluidNode], d.pyy[fluidNode], d.pzz[fluidNode],
+                        const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
+                        const scalar_t fneq = velocitySet::f_neq<Q>(d.pxx[fluidNode], d.pyy[fluidNode], d.pzz[fluidNode],
                                                                     d.pxy[fluidNode], d.pxz[fluidNode], d.pyz[fluidNode],
                                                                     d.ux[fluidNode], d.uy[fluidNode], d.uz[fluidNode]);
 
@@ -158,7 +158,7 @@ namespace LBM
                     }
                 });
 
-            d.g[6 * size::cells() + idx3_zm1] = Phase::VelocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - Phase::VelocitySet::as2() * physics::u_inf);
+            d.g[6 * size::cells() + idx3_zm1] = Phase::velocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - Phase::velocitySet::as2() * physics::u_inf);
         }
 
         __device__ static inline void periodicX(LBMFields d)
@@ -174,27 +174,27 @@ namespace LBM
             const label_t bL = device::global3(1, y, z);
             const label_t bR = device::global3(mesh::nx - 2, y, z);
 
-            device::constexpr_for<0, VelocitySet::Q()>(
+            device::constexpr_for<0, velocitySet::Q()>(
                 [&](const auto Q)
                 {
-                    if constexpr (VelocitySet::cx<Q>() > 0)
+                    if constexpr (velocitySet::cx<Q>() > 0)
                     {
                         d.f[Q * size::cells() + bL] = d.f[Q * size::cells() + bR];
                     }
-                    if constexpr (VelocitySet::cx<Q>() < 0)
+                    if constexpr (velocitySet::cx<Q>() < 0)
                     {
                         d.f[Q * size::cells() + bR] = d.f[Q * size::cells() + bL];
                     }
                 });
 
-            device::constexpr_for<0, Phase::VelocitySet::Q()>(
+            device::constexpr_for<0, Phase::velocitySet::Q()>(
                 [&](const auto Q)
                 {
-                    if constexpr (Phase::VelocitySet::cx<Q>() > 0)
+                    if constexpr (Phase::velocitySet::cx<Q>() > 0)
                     {
                         d.g[Q * size::cells() + bL] = d.g[Q * size::cells() + bR];
                     }
-                    if constexpr (Phase::VelocitySet::cx<Q>() < 0)
+                    if constexpr (Phase::velocitySet::cx<Q>() < 0)
                     {
                         d.g[Q * size::cells() + bR] = d.g[Q * size::cells() + bL];
                     }
@@ -230,27 +230,27 @@ namespace LBM
             const label_t bB = device::global3(x, 1, z);
             const label_t bT = device::global3(x, mesh::ny - 2, z);
 
-            device::constexpr_for<0, VelocitySet::Q()>(
+            device::constexpr_for<0, velocitySet::Q()>(
                 [&](const auto Q)
                 {
-                    if constexpr (VelocitySet::cy<Q>() > 0)
+                    if constexpr (velocitySet::cy<Q>() > 0)
                     {
                         d.f[Q * size::cells() + bB] = d.f[Q * size::cells() + bT];
                     }
-                    if constexpr (VelocitySet::cy<Q>() < 0)
+                    if constexpr (velocitySet::cy<Q>() < 0)
                     {
                         d.f[Q * size::cells() + bT] = d.f[Q * size::cells() + bB];
                     }
                 });
 
-            device::constexpr_for<0, Phase::VelocitySet::Q()>(
+            device::constexpr_for<0, Phase::velocitySet::Q()>(
                 [&](const auto Q)
                 {
-                    if constexpr (Phase::VelocitySet::cy<Q>() > 0)
+                    if constexpr (Phase::velocitySet::cy<Q>() > 0)
                     {
                         d.g[Q * size::cells() + bB] = d.g[Q * size::cells() + bT];
                     }
-                    if constexpr (Phase::VelocitySet::cy<Q>() < 0)
+                    if constexpr (Phase::velocitySet::cy<Q>() < 0)
                     {
                         d.g[Q * size::cells() + bT] = d.g[Q * size::cells() + bB];
                     }

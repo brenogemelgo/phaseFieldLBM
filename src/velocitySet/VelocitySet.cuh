@@ -13,32 +13,29 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Base interface for compile-time flow case definitions
-
-Namespace
-    LBM
+    Common interface and aggregation header for LBM velocity set definitions
 
 SourceFiles
-    flowCase.cuh
+    VelocitySet.cuh
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef FLOWCASE_CUH
-#define FLOWCASE_CUH
+#ifndef VELOCITYSET_CUH
+#define VELOCITYSET_CUH
 
 #include "cuda/utils.cuh"
-#include "include/LBMIncludes.cuh"
 
 namespace LBM
 {
-    class flowCase
+    class VelocitySet
     {
     public:
-        __device__ __host__ [[nodiscard]] inline consteval flowCase() noexcept {};
+        __device__ __host__ [[nodiscard]] inline consteval VelocitySet() noexcept {};
     };
 }
 
-#include "droplet.cuh"
-#include "jet.cuh"
+#include "D3Q7.cuh"
+#include "D3Q19.cuh"
+#include "D3Q27.cuh"
 
 #endif

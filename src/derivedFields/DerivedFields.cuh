@@ -28,7 +28,7 @@ Source files
 
 #include "cuda/utils.cuh"
 #include "functions/ioFields.cuh"
-#include "fieldAllocate/fieldAllocate.cuh"
+#include "fieldAllocate/FieldAllocate.cuh"
 
 #include "operators/timeAverage.cuh"
 #include "operators/reynoldsMoments.cuh"

@@ -19,21 +19,21 @@ Namespace
     LBM
 
 SourceFiles
-    droplet.cuh
+    Droplet.cuh
 
 \*---------------------------------------------------------------------------*/
 
 #ifndef DROPLET_CUH
 #define DROPLET_CUH
 
-#include "flowCase.cuh"
+#include "FlowCase.cuh"
 
 namespace LBM
 {
-    class droplet : private flowCase
+    class Droplet : private FlowCase
     {
     public:
-        __device__ __host__ [[nodiscard]] inline consteval droplet(){};
+        __device__ __host__ [[nodiscard]] inline consteval Droplet(){};
 
         __device__ __host__ [[nodiscard]] static inline consteval bool droplet_case() noexcept
         {

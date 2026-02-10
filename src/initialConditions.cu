@@ -116,28 +116,28 @@ namespace LBM
         const scalar_t uz = d.uz[idx3];
 
         const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
-        device::constexpr_for<0, VelocitySet::Q()>(
+        device::constexpr_for<0, velocitySet::Q()>(
             [&](const auto Q)
             {
-                constexpr scalar_t cx = static_cast<scalar_t>(VelocitySet::cx<Q>());
-                constexpr scalar_t cy = static_cast<scalar_t>(VelocitySet::cy<Q>());
-                constexpr scalar_t cz = static_cast<scalar_t>(VelocitySet::cz<Q>());
+                constexpr scalar_t cx = static_cast<scalar_t>(velocitySet::cx<Q>());
+                constexpr scalar_t cy = static_cast<scalar_t>(velocitySet::cy<Q>());
+                constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
 
-                const scalar_t cu = VelocitySet::as2() * (cx * ux + cy * uy + cz * uz);
+                const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
 
-                const scalar_t feq = VelocitySet::f_eq<Q>(d.rho[idx3], uu, cu);
+                const scalar_t feq = velocitySet::f_eq<Q>(d.rho[idx3], uu, cu);
 
                 d.f[Q * size::cells() + idx3] = to_pop(feq);
             });
 
-        device::constexpr_for<0, Phase::VelocitySet::Q()>(
+        device::constexpr_for<0, Phase::velocitySet::Q()>(
             [&](const auto Q)
             {
-                // const label_t xx = x + static_cast<label_t>(Phase::VelocitySet::cx<Q>());
-                // const label_t yy = y + static_cast<label_t>(Phase::VelocitySet::cy<Q>());
-                // const label_t zz = z + static_cast<label_t>(Phase::VelocitySet::cz<Q>());
+                // const label_t xx = x + static_cast<label_t>(Phase::velocitySet::cx<Q>());
+                // const label_t yy = y + static_cast<label_t>(Phase::velocitySet::cy<Q>());
+                // const label_t zz = z + static_cast<label_t>(Phase::velocitySet::cz<Q>());
 
-                d.g[device::global4(x, y, z, Q)] = Phase::VelocitySet::g_eq<Q>(d.phi[idx3], ux, uy, uz);
+                d.g[device::global4(x, y, z, Q)] = Phase::velocitySet::g_eq<Q>(d.phi[idx3], ux, uy, uz);
             });
     }
 }

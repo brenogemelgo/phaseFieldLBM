@@ -23,11 +23,11 @@ SourceFiles
 #ifndef D3Q7_CUH
 #define D3Q7_CUH
 
-#include "velocitySet.cuh"
+#include "VelocitySet.cuh"
 
 namespace LBM
 {
-    class D3Q7 : private velocitySet
+    class D3Q7 : private VelocitySet
     {
     public:
         __device__ __host__ [[nodiscard]] inline consteval D3Q7(){};

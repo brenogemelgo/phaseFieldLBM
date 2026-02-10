@@ -275,12 +275,12 @@ namespace relaxation
 
     __device__ __host__ [[nodiscard]] static inline constexpr scalar_t omega_from_nu(const scalar_t nu) noexcept
     {
-        return static_cast<scalar_t>(static_cast<double>(1) / (static_cast<double>(0.5) + static_cast<double>(LBM::VelocitySet::as2()) * static_cast<double>(nu)));
+        return static_cast<scalar_t>(static_cast<double>(1) / (static_cast<double>(0.5) + static_cast<double>(LBM::velocitySet::as2()) * static_cast<double>(nu)));
     }
 
     __device__ __host__ [[nodiscard]] static inline constexpr scalar_t tau_from_nu(const scalar_t nu) noexcept
     {
-        return static_cast<scalar_t>(0.5) + static_cast<scalar_t>(LBM::VelocitySet::as2()) * nu;
+        return static_cast<scalar_t>(0.5) + static_cast<scalar_t>(LBM::velocitySet::as2()) * nu;
     }
 
     __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_water() noexcept
@@ -377,7 +377,7 @@ namespace relaxation
 
     __device__ __host__ [[nodiscard]] static inline constexpr scalar_t omega_from_nu(const scalar_t nu) noexcept
     {
-        return static_cast<scalar_t>(static_cast<double>(1) / (static_cast<double>(0.5) + static_cast<double>(LBM::VelocitySet::as2()) * static_cast<double>(nu)));
+        return static_cast<scalar_t>(static_cast<double>(1) / (static_cast<double>(0.5) + static_cast<double>(LBM::velocitySet::as2()) * static_cast<double>(nu)));
     }
 
     __device__ __host__ [[nodiscard]] static inline consteval scalar_t omega_ref() noexcept

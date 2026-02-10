@@ -21,7 +21,7 @@ SourceFiles
 \*---------------------------------------------------------------------------*/
 
 #include "functions/deviceFunctions.cuh"
-#include "fieldAllocate/fieldAllocate.cuh"
+#include "fieldAllocate/FieldAllocate.cuh"
 #include "functions/hostFunctions.cuh"
 #include "functions/ioFields.cuh"
 #include "functions/vtsWriter.cuh"
@@ -30,7 +30,7 @@ SourceFiles
 #include "initialConditions.cu"
 #include "boundaryConditions.cuh"
 #include "phaseField.cuh"
-#include "derivedFields/derivedFields.cuh"
+#include "derivedFields/DerivedFields.cuh"
 #include "lbm.cu"
 
 int main(int argc, char *argv[])
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 
     // Initial conditions
     LBM::setInitialDensity<<<grid3D, block3D, dynamic, queue>>>(fields);
-    LBM::FlowCase::initialConditions<grid3D, block3D, dynamic>(fields, queue);
+    LBM::flowCase::initialConditions<grid3D, block3D, dynamic>(fields, queue);
     LBM::setDistros<<<grid3D, block3D, dynamic, queue>>>(fields);
 
     // Make sure everything is initialized
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
         cudaGraphLaunch(graphExec, queue);
 
         // Flow case specific boundary conditions
-        LBM::FlowCase::boundaryConditions<gridX, blockX, gridY, blockY, gridZ, blockZ, dynamic>(fields, queue, STEP);
+        LBM::flowCase::boundaryConditions<gridX, blockX, gridY, blockY, gridZ, blockZ, dynamic>(fields, queue, STEP);
 
         // Ensure debug output is complete before host logic
         cudaStreamSynchronize(queue);

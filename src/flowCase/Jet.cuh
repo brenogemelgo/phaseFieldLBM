@@ -19,21 +19,21 @@ Namespace
     LBM
 
 SourceFiles
-    jet.cuh
+    Jet.cuh
 
 \*---------------------------------------------------------------------------*/
 
 #ifndef JET_CUH
 #define JET_CUH
 
-#include "flowCase.cuh"
+#include "FlowCase.cuh"
 
 namespace LBM
 {
-    class jet : private flowCase
+    class Jet : private FlowCase
     {
     public:
-        __device__ __host__ [[nodiscard]] inline consteval jet(){};
+        __device__ __host__ [[nodiscard]] inline consteval Jet(){};
 
         __device__ __host__ [[nodiscard]] static inline consteval bool droplet_case() noexcept
         {
