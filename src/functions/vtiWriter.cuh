@@ -115,7 +115,7 @@ namespace host
                 return;
             }
 
-            const char *scalarTypeName = detail::vtScalarTypeName<scalar_t>::value();
+            const char *scalarTypeName = detail::VTScalarTypeName<scalar_t>::value();
 
             constexpr double ox = 0.0, oy = 0.0, oz = 0.0;
             constexpr double sx = 1.0, sy = 1.0, sz = 1.0;

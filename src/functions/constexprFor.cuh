@@ -24,11 +24,11 @@ SourceFiles
 #define CONSTEXPRFOR_CUH
 
 template <typename T, T v>
-struct integralConstant
+struct IntegralConstant
 {
     static constexpr const T value = v;
     using value_type = T;
-    using type = integralConstant;
+    using type = IntegralConstant;
 
     __device__ [[nodiscard]] inline consteval operator value_type() const noexcept
     {
@@ -48,10 +48,10 @@ namespace device
     {
         if constexpr (Start < End)
         {
-            f(integralConstant<label_t, Start>());
+            f(IntegralConstant<label_t, Start>());
             if constexpr (Start + 1 < End)
             {
-                constexpr_for<Start + 1, End>(std::forward<F>(f));
+                device::constexpr_for<Start + 1, End>(std::forward<F>(f));
             }
         }
     }

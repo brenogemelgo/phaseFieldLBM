@@ -126,7 +126,7 @@ namespace host
                 return;
             }
 
-            const char *scalarTypeName = detail::vtScalarTypeName<scalar_t>::value();
+            const char *scalarTypeName = detail::VTScalarTypeName<scalar_t>::value();
 
             vts << R"(<?xml version="1.0"?>)" << '\n';
             vts << R"(<VTKFile type="StructuredGrid" version="0.1" byte_order="LittleEndian">)" << '\n';
