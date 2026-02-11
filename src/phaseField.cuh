@@ -221,9 +221,9 @@ namespace phase
         // const scalar_t Gaussian_indicator = std::exp(-std::pow(std::abs(phi - static_cast<scalar_t>(0.5)), 2) / sigma);
 
         const scalar_t stCurv = -physics::sigma * curvature * d.ind[idx3];
-        d.ffx[idx3] = stCurv * d.normx[idx3];
-        d.ffy[idx3] = stCurv * d.normy[idx3];
-        d.ffz[idx3] = stCurv * d.normz[idx3];
+        d.Fx[idx3] = stCurv * d.normx[idx3];
+        d.Fy[idx3] = stCurv * d.normy[idx3];
+        d.Fz[idx3] = stCurv * d.normz[idx3];
     }
 }
 

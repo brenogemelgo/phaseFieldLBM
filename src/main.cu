@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     }
 
     // Device 3D fields
-    static constexpr std::array<host::FieldDescription<scalar_t>, 18> scalar = {{
+    static constexpr auto scalar = std::to_array<host::FieldDescription<scalar_t>>({
         {"rho", &LBMFields::rho, host::bytesScalar(), true},
         {"ux", &LBMFields::ux, host::bytesScalar(), true},
         {"uy", &LBMFields::uy, host::bytesScalar(), true},
@@ -69,10 +69,10 @@ int main(int argc, char *argv[])
         {"normy", &LBMFields::normy, host::bytesScalar(), true},
         {"normz", &LBMFields::normz, host::bytesScalar(), true},
         {"ind", &LBMFields::ind, host::bytesScalar(), true},
-        {"ffx", &LBMFields::ffx, host::bytesScalar(), true},
-        {"ffy", &LBMFields::ffy, host::bytesScalar(), true},
-        {"ffz", &LBMFields::ffz, host::bytesScalar(), true},
-    }};
+        {"Fx", &LBMFields::Fx, host::bytesScalar(), true},
+        {"Fy", &LBMFields::Fy, host::bytesScalar(), true},
+        {"Fz", &LBMFields::Fz, host::bytesScalar(), true},
+    });
 
     // Device distribution functions
     static constexpr host::FieldDescription<pop_t> f = {"f", &LBMFields::f, host::bytesF(), true};

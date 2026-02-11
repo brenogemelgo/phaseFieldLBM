@@ -166,14 +166,14 @@ namespace lbm
             const scalar_t ux,
             const scalar_t uy,
             const scalar_t uz,
-            const scalar_t ffx,
-            const scalar_t ffy,
-            const scalar_t ffz) noexcept
+            const scalar_t Fx,
+            const scalar_t Fy,
+            const scalar_t Fz) noexcept
         {
             return static_cast<scalar_t>(0.5) * w<Q>() *
-                   ((as2() * (cx<Q>() - ux) + as2() * cu * cx<Q>()) * ffx +
-                    (as2() * (cy<Q>() - uy) + as2() * cu * cy<Q>()) * ffy +
-                    (as2() * (cz<Q>() - uz) + as2() * cu * cz<Q>()) * ffz);
+                   ((as2() * (cx<Q>() - ux) + as2() * cu * cx<Q>()) * Fx +
+                    (as2() * (cy<Q>() - uy) + as2() * cu * cy<Q>()) * Fy +
+                    (as2() * (cz<Q>() - uz) + as2() * cu * cz<Q>()) * Fz);
         }
 
     private:

@@ -40,7 +40,30 @@ namespace derived
     class DerivedFields
     {
     public:
-        static inline constexpr std::array<const char *, 0> kEnabledNames = {{}};
+        static inline constexpr auto kEnabledNames = std::to_array<const char *>({
+            // Time averages
+            "avg_phi",
+            "avg_ux",
+            "avg_uy",
+            "avg_uz",
+
+            // Reynolds moments
+            "avg_uxux",
+            "avg_uyuy",
+            "avg_uzuz",
+            "avg_uxuy",
+            "avg_uxuz",
+            "avg_uyuz",
+
+            // Vorticity
+            "vort_x",
+            "vort_y",
+            "vort_z",
+            "vort_mag",
+
+            // Passive scalar (concentration)
+            "c",
+        });
 
         DerivedFields() = default;
         DerivedFields(const DerivedFields &) = delete;
