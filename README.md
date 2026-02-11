@@ -1,6 +1,8 @@
 # phaseFieldLBM
 
-**phaseFieldLBM** is a **GPU-accelerated**, lattice Boltzmann simulator for multicomponent flows. Implemented in CUDA, it supports **D3Q19/D3Q27** for hydrodynamics and **D3Q7** for phase field evolution, capturing interface dynamics and surface tension. Available cases: **jet** and **droplet**.
+**phaseFieldLBM** is a **GPU-accelerated**, lattice Boltzmann simulator for multicomponent flows based on a **conservative Allen–Cahn** phase-field formulation. 
+Implemented in CUDA, it supports **D3Q19/D3Q27** for hydrodynamics and **D3Q7** for phase field evolution, enabling accurate interface dynamics and surface tension modeling.
+Available cases: **jet** and **droplet**.
 
 ---
 
@@ -32,11 +34,11 @@ Pipeline: compile → simulate → post-process
 Performance is reported in **MLUPS** (Million Lattice Updates Per Second).  
 Each GPU entry shows the average across multiple runs.
 
-| GPU            | D3Q19 (MLUPS) | D3Q27 (MLUPS) |
-|----------------|---------------|---------------|
-| RTX 3050 (4GB) | --            | –             |
-| RTX 4090 (24GB)| –             | –             |
-| A100 (40GB)    | –             | –             |
+| GPU             | D3Q19 (MLUPS) | D3Q27 (MLUPS) |
+|-----------------|---------------|---------------|
+| RTX 3050 (4GB)  | –             | –             |
+| RTX 4090 (24GB) | –             | –             |
+| A100 (40GB)     | –             | –             |
 
 *Important considerations:*  
 - **D3Q19** uses 2nd-order equilibrium/non-equilibrium expansion.  

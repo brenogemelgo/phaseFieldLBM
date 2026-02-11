@@ -191,11 +191,6 @@ namespace lbm
                 label_t zz = z + static_cast<label_t>(velocitySet::cz<Q>());
 
                 // Periodic wrapping
-                // if constexpr (flowCase::jet_case())
-                // {
-                //     xx = device::wrapX(xx);
-                //     yy = device::wrapY(yy);
-                // }
                 if constexpr (flowCase::droplet_case())
                 {
                     xx = device::wrapX(xx);
@@ -221,13 +216,7 @@ namespace lbm
                 label_t yy = y + static_cast<label_t>(phase::velocitySet::cy<Q>());
                 label_t zz = z + static_cast<label_t>(phase::velocitySet::cz<Q>());
 
-                /// Periodic wrapping
-                // if constexpr (flowCase::jet_case())
-                // {
-                //     xx = device::wrapX(xx);
-                //     yy = device::wrapY(yy);
-                // }
-                // else
+                // Periodic wrapping
                 if constexpr (flowCase::droplet_case())
                 {
                     xx = device::wrapX(xx);
