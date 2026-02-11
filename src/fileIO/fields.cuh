@@ -118,11 +118,11 @@ namespace host
         case FieldID::Ind:
             return f.ind;
         case FieldID::Ffx:
-            return f.Fx;
+            return f.fsx;
         case FieldID::Ffy:
-            return f.Fy;
+            return f.fsy;
         case FieldID::Ffz:
-            return f.Fz;
+            return f.fsz;
 
 #if TIME_AVERAGE
 

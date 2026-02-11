@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
         {"normy", &LBMFields::normy, host::bytesScalar(), true},
         {"normz", &LBMFields::normz, host::bytesScalar(), true},
         {"ind", &LBMFields::ind, host::bytesScalar(), true},
-        {"Fx", &LBMFields::Fx, host::bytesScalar(), true},
-        {"Fy", &LBMFields::Fy, host::bytesScalar(), true},
-        {"Fz", &LBMFields::Fz, host::bytesScalar(), true},
+        {"fsx", &LBMFields::fsx, host::bytesScalar(), true},
+        {"fsy", &LBMFields::fsy, host::bytesScalar(), true},
+        {"fsz", &LBMFields::fsz, host::bytesScalar(), true},
     });
 
     // Device distribution functions

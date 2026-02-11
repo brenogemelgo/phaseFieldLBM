@@ -41,9 +41,9 @@ struct LBMFields
     scalar_t *normy;
     scalar_t *normz;
     scalar_t *ind;
-    scalar_t *Fx;
-    scalar_t *Fy;
-    scalar_t *Fz;
+    scalar_t *fsx;
+    scalar_t *fsy;
+    scalar_t *fsz;
 
     pop_t *f;
     scalar_t *g;

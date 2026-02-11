@@ -57,9 +57,9 @@ namespace lbm
         rho += static_cast<scalar_t>(1);
         d.rho[idx3] = rho;
 
-        const scalar_t Fx = d.Fx[idx3];
-        const scalar_t Fy = d.Fy[idx3];
-        const scalar_t Fz = d.Fz[idx3];
+        const scalar_t fsx = d.fsx[idx3];
+        const scalar_t fsy = d.fsy[idx3];
+        const scalar_t fsz = d.fsz[idx3];
 
         const scalar_t invRho = static_cast<scalar_t>(1) / rho;
 
@@ -80,9 +80,9 @@ namespace lbm
             uz = invRho * (pop[5] - pop[6] + pop[9] - pop[10] + pop[11] - pop[12] + pop[16] - pop[15] + pop[18] - pop[17] + pop[19] - pop[20] + pop[22] - pop[21] + pop[23] - pop[24] + pop[25] - pop[26]);
         }
 
-        ux += Fx * static_cast<scalar_t>(0.5) * invRho;
-        uy += Fy * static_cast<scalar_t>(0.5) * invRho;
-        uz += Fz * static_cast<scalar_t>(0.5) * invRho;
+        ux += fsx * static_cast<scalar_t>(0.5) * invRho;
+        uy += fsy * static_cast<scalar_t>(0.5) * invRho;
+        uz += fsz * static_cast<scalar_t>(0.5) * invRho;
 
         d.ux[idx3] = ux;
         d.uy[idx3] = uy;
@@ -103,7 +103,7 @@ namespace lbm
                 const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
 
                 const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
-                const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, Fx, Fy, Fz);
+                const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, fsx, fsy, fsz);
                 const scalar_t fneq = pop[Q] - feq + force;
 
                 pxx += fneq * cx * cx;
@@ -150,9 +150,9 @@ namespace lbm
         const scalar_t pxy = d.pxy[idx3];
         const scalar_t pxz = d.pxz[idx3];
         const scalar_t pyz = d.pyz[idx3];
-        const scalar_t Fx = d.Fx[idx3];
-        const scalar_t Fy = d.Fy[idx3];
-        const scalar_t Fz = d.Fz[idx3];
+        const scalar_t fsx = d.fsx[idx3];
+        const scalar_t fsy = d.fsy[idx3];
+        const scalar_t fsz = d.fsz[idx3];
 
         const scalar_t phi = d.phi[idx3];
         scalar_t omega = static_cast<scalar_t>(0);
@@ -183,7 +183,7 @@ namespace lbm
                 const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
 
                 const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
-                const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, Fx, Fy, Fz);
+                const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, fsx, fsy, fsz);
                 const scalar_t fneq = velocitySet::f_neq<Q>(pxx, pyy, pzz, pxy, pxz, pyz, ux, uy, uz);
 
                 label_t xx = x + static_cast<label_t>(velocitySet::cx<Q>());
