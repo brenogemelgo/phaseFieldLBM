@@ -41,9 +41,9 @@ namespace graph
         checkCudaErrorsOutline(cudaStreamBeginCapture(queue, cudaStreamCaptureModeGlobal));
 
         // Phase field
-        Phase::computePhase<<<grid, block, dynamic, queue>>>(fields);
-        Phase::computeNormals<<<grid, block, dynamic, queue>>>(fields);
-        Phase::computeForces<<<grid, block, dynamic, queue>>>(fields);
+        phase::computePhase<<<grid, block, dynamic, queue>>>(fields);
+        phase::computeNormals<<<grid, block, dynamic, queue>>>(fields);
+        phase::computeForces<<<grid, block, dynamic, queue>>>(fields);
 
         // Hydrodynamics
         lbm::computeMoments<<<grid, block, dynamic, queue>>>(fields);

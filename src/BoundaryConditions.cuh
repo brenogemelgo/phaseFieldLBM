@@ -102,7 +102,7 @@ namespace lbm
                     }
                 });
 
-            d.g[5 * size::cells() + idx3_zp1] = Phase::velocitySet::w<5>() * phi * (static_cast<scalar_t>(1) + Phase::velocitySet::as2() * uz);
+            d.g[5 * size::cells() + idx3_zp1] = phase::velocitySet::w<5>() * phi * (static_cast<scalar_t>(1) + phase::velocitySet::as2() * uz);
         }
 
         __device__ static inline void applyOutflow(LBMFields d) noexcept
@@ -158,7 +158,7 @@ namespace lbm
                     }
                 });
 
-            d.g[6 * size::cells() + idx3_zm1] = Phase::velocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - Phase::velocitySet::as2() * physics::u_inf);
+            d.g[6 * size::cells() + idx3_zm1] = phase::velocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - phase::velocitySet::as2() * physics::u_inf);
         }
 
         __device__ static inline void periodicX(LBMFields d)
@@ -187,14 +187,14 @@ namespace lbm
                     }
                 });
 
-            device::constexpr_for<0, Phase::velocitySet::Q()>(
+            device::constexpr_for<0, phase::velocitySet::Q()>(
                 [&](const auto Q)
                 {
-                    if constexpr (Phase::velocitySet::cx<Q>() > 0)
+                    if constexpr (phase::velocitySet::cx<Q>() > 0)
                     {
                         d.g[Q * size::cells() + bL] = d.g[Q * size::cells() + bR];
                     }
-                    if constexpr (Phase::velocitySet::cx<Q>() < 0)
+                    if constexpr (phase::velocitySet::cx<Q>() < 0)
                     {
                         d.g[Q * size::cells() + bR] = d.g[Q * size::cells() + bL];
                     }
@@ -243,14 +243,14 @@ namespace lbm
                     }
                 });
 
-            device::constexpr_for<0, Phase::velocitySet::Q()>(
+            device::constexpr_for<0, phase::velocitySet::Q()>(
                 [&](const auto Q)
                 {
-                    if constexpr (Phase::velocitySet::cy<Q>() > 0)
+                    if constexpr (phase::velocitySet::cy<Q>() > 0)
                     {
                         d.g[Q * size::cells() + bB] = d.g[Q * size::cells() + bT];
                     }
-                    if constexpr (Phase::velocitySet::cy<Q>() < 0)
+                    if constexpr (phase::velocitySet::cy<Q>() < 0)
                     {
                         d.g[Q * size::cells() + bT] = d.g[Q * size::cells() + bB];
                     }

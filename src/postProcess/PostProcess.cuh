@@ -42,7 +42,7 @@ namespace host
         PostProcess &operator=(const PostProcess &) = delete;
 
         template <typename Container>
-        __host__ bool writeBins(
+        __host__ bool bin(
             const Container &fieldsCfg,
             const std::string &SIM_DIR,
             const label_t STEP,
@@ -66,7 +66,7 @@ namespace host
                 {
                     if (verbose_)
                     {
-                        std::cerr << "PostProcess::writeBins: null device ptr for field " << cfg.name << ", skipping.\n";
+                        std::cerr << "PostProcess::bin: null device ptr for field " << cfg.name << ", skipping.\n";
                     }
 
                     continue;
@@ -85,7 +85,7 @@ namespace host
                 std::ofstream out(outPath, std::ios::binary | std::ios::trunc);
                 if (!out)
                 {
-                    std::cerr << "PostProcess::writeBins: could not open " << outPath.string() << " for writing.\n";
+                    std::cerr << "PostProcess::bin: could not open " << outPath.string() << " for writing.\n";
                     ok = false;
 
                     continue;
@@ -98,7 +98,7 @@ namespace host
         }
 
         template <typename Container>
-        __host__ bool writeVTI(
+        __host__ bool vti(
             const Container &fieldsCfg,
             const std::string &SIM_DIR,
             const label_t STEP) const
@@ -141,7 +141,7 @@ namespace host
                 const bool exists = std::filesystem::exists(binPath, ec);
                 if (ec || !exists)
                 {
-                    std::cerr << "PostProcess::writeVTI: missing bin " << binPath.string() << " for field " << cfg.name << " (run writeBins first).\n";
+                    std::cerr << "PostProcess::vti: missing bin " << binPath.string() << " for field " << cfg.name << " (run bin first).\n";
 
                     continue;
                 }
@@ -151,14 +151,14 @@ namespace host
                     static_cast<std::uint64_t>(std::filesystem::file_size(binPath, ec_sz));
                 if (ec_sz)
                 {
-                    std::cerr << "PostProcess::writeVTI: could not stat " << binPath.string() << " (" << ec_sz.message() << "), skipping " << cfg.name << ".\n";
+                    std::cerr << "PostProcess::vti: could not stat " << binPath.string() << " (" << ec_sz.message() << "), skipping " << cfg.name << ".\n";
 
                     continue;
                 }
 
                 if (fs != nodeBytes)
                 {
-                    std::cerr << "PostProcess::writeVTI: " << binPath.string() << " has " << fs << " bytes; expected " << nodeBytes << " for Grid3D. Skipping " << cfg.name << ".\n";
+                    std::cerr << "PostProcess::vti: " << binPath.string() << " has " << fs << " bytes; expected " << nodeBytes << " for Grid3D. Skipping " << cfg.name << ".\n";
 
                     continue;
                 }
@@ -175,7 +175,7 @@ namespace host
 
             if (arrays.empty())
             {
-                std::cerr << "PostProcess::writeVTI: no valid Grid3D bins found for step " << STEP << ". Not writing VTI.\n";
+                std::cerr << "PostProcess::vti: no valid Grid3D bins found for step " << STEP << ". Not writing VTI.\n";
 
                 return false;
             }
@@ -183,7 +183,7 @@ namespace host
             std::ofstream vti(vtiPath, std::ios::binary | std::ios::trunc);
             if (!vti)
             {
-                std::cerr << "PostProcess::writeVTI: could not open " << vtiPath.string() << " for writing.\n";
+                std::cerr << "PostProcess::vti: could not open " << vtiPath.string() << " for writing.\n";
 
                 return false;
             }
@@ -230,7 +230,7 @@ namespace host
                 std::ifstream in(a.path, std::ios::binary);
                 if (!in)
                 {
-                    std::cerr << "PostProcess::writeVTI: could not open " << a.path.string() << " while writing VTI. Writing zeros for " << a.name << ".\n";
+                    std::cerr << "PostProcess::vti: could not open " << a.path.string() << " while writing VTI. Writing zeros for " << a.name << ".\n";
                     std::vector<char> zeros(a.nbytes, 0);
                     vti.write(zeros.data(), static_cast<std::streamsize>(zeros.size()));
 

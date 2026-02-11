@@ -53,33 +53,33 @@ int main(int argc, char *argv[])
     }
 
     // Device 3D fields
-    static constexpr std::array<host::FieldDescription<scalar_t>, 18> baseScalarGrid = {{
-        {"rho", &LBMFields::rho, host::bytesScalarGrid3D(), true},
-        {"ux", &LBMFields::ux, host::bytesScalarGrid3D(), true},
-        {"uy", &LBMFields::uy, host::bytesScalarGrid3D(), true},
-        {"uz", &LBMFields::uz, host::bytesScalarGrid3D(), true},
-        {"pxx", &LBMFields::pxx, host::bytesScalarGrid3D(), true},
-        {"pyy", &LBMFields::pyy, host::bytesScalarGrid3D(), true},
-        {"pzz", &LBMFields::pzz, host::bytesScalarGrid3D(), true},
-        {"pxy", &LBMFields::pxy, host::bytesScalarGrid3D(), true},
-        {"pxz", &LBMFields::pxz, host::bytesScalarGrid3D(), true},
-        {"pyz", &LBMFields::pyz, host::bytesScalarGrid3D(), true},
-        {"phi", &LBMFields::phi, host::bytesScalarGrid3D(), true},
-        {"normx", &LBMFields::normx, host::bytesScalarGrid3D(), true},
-        {"normy", &LBMFields::normy, host::bytesScalarGrid3D(), true},
-        {"normz", &LBMFields::normz, host::bytesScalarGrid3D(), true},
-        {"ind", &LBMFields::ind, host::bytesScalarGrid3D(), true},
-        {"ffx", &LBMFields::ffx, host::bytesScalarGrid3D(), true},
-        {"ffy", &LBMFields::ffy, host::bytesScalarGrid3D(), true},
-        {"ffz", &LBMFields::ffz, host::bytesScalarGrid3D(), true},
+    static constexpr std::array<host::FieldDescription<scalar_t>, 18> scalar = {{
+        {"rho", &LBMFields::rho, host::bytesScalar(), true},
+        {"ux", &LBMFields::ux, host::bytesScalar(), true},
+        {"uy", &LBMFields::uy, host::bytesScalar(), true},
+        {"uz", &LBMFields::uz, host::bytesScalar(), true},
+        {"pxx", &LBMFields::pxx, host::bytesScalar(), true},
+        {"pyy", &LBMFields::pyy, host::bytesScalar(), true},
+        {"pzz", &LBMFields::pzz, host::bytesScalar(), true},
+        {"pxy", &LBMFields::pxy, host::bytesScalar(), true},
+        {"pxz", &LBMFields::pxz, host::bytesScalar(), true},
+        {"pyz", &LBMFields::pyz, host::bytesScalar(), true},
+        {"phi", &LBMFields::phi, host::bytesScalar(), true},
+        {"normx", &LBMFields::normx, host::bytesScalar(), true},
+        {"normy", &LBMFields::normy, host::bytesScalar(), true},
+        {"normz", &LBMFields::normz, host::bytesScalar(), true},
+        {"ind", &LBMFields::ind, host::bytesScalar(), true},
+        {"ffx", &LBMFields::ffx, host::bytesScalar(), true},
+        {"ffy", &LBMFields::ffy, host::bytesScalar(), true},
+        {"ffz", &LBMFields::ffz, host::bytesScalar(), true},
     }};
 
     // Device distribution functions
-    static constexpr host::FieldDescription<pop_t> fDist = {"f", &LBMFields::f, host::bytesFDistros(), true};
-    static constexpr host::FieldDescription<scalar_t> gDist = {"g", &LBMFields::g, host::bytesGDistros(), true};
+    static constexpr host::FieldDescription<pop_t> f = {"f", &LBMFields::f, host::bytesF(), true};
+    static constexpr host::FieldDescription<scalar_t> g = {"g", &LBMFields::g, host::bytesG(), true};
 
     // Allocate all device fields
-    host::FieldAllocate baseOwner(fields, baseScalarGrid, fDist, gDist);
+    host::FieldAllocate baseOwner(fields, scalar, f, g);
 
     // Construct derived fields
     derived::DerivedFields dfields;
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 
 #if !BENCHMARK
     // Post-processing instance
-    host::PostProcess post;
+    host::PostProcess write;
 
     // Base fields (always saved)
     constexpr std::array<host::FieldConfig, 2> BASE_FIELDS{
@@ -180,8 +180,8 @@ int main(int argc, char *argv[])
         {
             checkCudaErrors(cudaStreamSynchronize(queue));
             std::cout << "Step " << STEP << ": bins in " << SIM_DIR << "\n";
-            post.writeBins(OUTPUT_FIELDS, SIM_DIR, STEP, fields);
-            post.writeVTI(OUTPUT_FIELDS, SIM_DIR, STEP);
+            write.bin(OUTPUT_FIELDS, SIM_DIR, STEP, fields);
+            write.vti(OUTPUT_FIELDS, SIM_DIR, STEP);
         }
 #endif
     }

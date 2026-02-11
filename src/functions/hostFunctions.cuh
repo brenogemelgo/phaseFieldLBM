@@ -179,19 +179,19 @@ namespace host
         return (a + b - 1u) / b;
     }
 
-    __host__ [[nodiscard]] static inline constexpr size_t bytesScalarGrid3D() noexcept
+    __host__ [[nodiscard]] static inline constexpr size_t bytesScalar() noexcept
     {
         return static_cast<size_t>(size::cells()) * sizeof(scalar_t);
     }
 
-    __host__ [[nodiscard]] static inline constexpr size_t bytesFDistros() noexcept
+    __host__ [[nodiscard]] static inline constexpr size_t bytesF() noexcept
     {
         return static_cast<size_t>(size::cells()) * static_cast<size_t>(lbm::velocitySet::Q()) * sizeof(pop_t);
     }
 
-    __host__ [[nodiscard]] static inline constexpr size_t bytesGDistros() noexcept
+    __host__ [[nodiscard]] static inline constexpr size_t bytesG() noexcept
     {
-        return static_cast<size_t>(size::cells()) * static_cast<size_t>(Phase::velocitySet::Q()) * sizeof(scalar_t);
+        return static_cast<size_t>(size::cells()) * static_cast<size_t>(phase::velocitySet::Q()) * sizeof(scalar_t);
     }
 }
 

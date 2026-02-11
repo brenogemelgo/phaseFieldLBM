@@ -26,7 +26,7 @@ SourceFiles
 #ifndef PHASEFIELD_CUH
 #define PHASEFIELD_CUH
 
-namespace Phase
+namespace phase
 {
     __global__ void computePhase(LBMFields d)
     {

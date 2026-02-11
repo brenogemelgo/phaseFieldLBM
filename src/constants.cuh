@@ -48,7 +48,7 @@ namespace lbm
 #endif
 }
 
-namespace Phase
+namespace phase
 {
     using velocitySet = lbm::D3Q7;
 }
@@ -100,9 +100,9 @@ namespace physics
     static constexpr scalar_t interface_width = static_cast<scalar_t>(4); // continuum interface width. discretization may change it a little
 
     static constexpr scalar_t tau_g = static_cast<scalar_t>(1);                                            // phase field relaxation time
-    static constexpr scalar_t diff_int = Phase::velocitySet::cs2() * (tau_g - static_cast<scalar_t>(0.5)); // interfacial diffusivity
+    static constexpr scalar_t diff_int = phase::velocitySet::cs2() * (tau_g - static_cast<scalar_t>(0.5)); // interfacial diffusivity
     static constexpr scalar_t kappa = static_cast<scalar_t>(4) * diff_int / interface_width;               // sharpening parameter
-    static constexpr scalar_t gamma = kappa / Phase::velocitySet::cs2();
+    static constexpr scalar_t gamma = kappa / phase::velocitySet::cs2();
 }
 
 #elif defined(DROPLET)
@@ -129,9 +129,9 @@ namespace physics
     static constexpr scalar_t interface_width = static_cast<scalar_t>(4); // continuum interface width. discretization may change it a little
 
     static constexpr scalar_t tau_g = static_cast<scalar_t>(1);                                            // phase field relaxation time
-    static constexpr scalar_t diff_int = Phase::velocitySet::cs2() * (tau_g - static_cast<scalar_t>(0.5)); // interfacial diffusivity
+    static constexpr scalar_t diff_int = phase::velocitySet::cs2() * (tau_g - static_cast<scalar_t>(0.5)); // interfacial diffusivity
     static constexpr scalar_t kappa = static_cast<scalar_t>(4) * diff_int / interface_width;               // sharpening parameter
-    static constexpr scalar_t gamma = kappa / Phase::velocitySet::cs2();
+    static constexpr scalar_t gamma = kappa / phase::velocitySet::cs2();
 
     static constexpr scalar_t tau = static_cast<scalar_t>(0.55);
     static constexpr scalar_t visc_ref = (tau - static_cast<scalar_t>(0.5)) / lbm::velocitySet::as2();
