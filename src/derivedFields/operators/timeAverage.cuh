@@ -28,7 +28,7 @@ SourceFiles
 #ifndef TIMEAVERAGE_CUH
 #define TIMEAVERAGE_CUH
 
-#include "functions/ioFields.cuh"
+#include "fileIO/fields.cuh"
 
 #if TIME_AVERAGE
 

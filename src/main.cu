@@ -23,7 +23,7 @@ SourceFiles
 #include "functions/deviceFunctions.cuh"
 #include "fieldAllocate/FieldAllocate.cuh"
 #include "functions/hostFunctions.cuh"
-#include "functions/ioFields.cuh"
+#include "fileIO/fields.cuh"
 #include "postProcess/PostProcess.cuh"
 #include "cuda/CUDAGraph.cuh"
 #include "initialConditions.cu"

@@ -26,7 +26,7 @@ SourceFiles
 #ifndef IOFIELDS_CUH
 #define IOFIELDS_CUH
 
-#include "globalFunctions.cuh"
+#include "functions/globalFunctions.cuh"
 
 namespace host
 {
@@ -176,38 +176,6 @@ namespace host
 
         default:
             return nullptr;
-        }
-    }
-
-    template <typename Container>
-    __host__ static inline void saveConfiguredFields(
-        const Container &fieldsCfg,
-        const std::string &SIM_DIR,
-        const label_t STEP,
-        const LBMFields &devFields)
-    {
-        for (const auto &cfg : fieldsCfg)
-        {
-            scalar_t *d_ptr = getDeviceFieldPointer(devFields, cfg.id);
-            if (d_ptr == nullptr)
-            {
-                std::cerr << "saveConfiguredFields: null pointer for field " << cfg.name << ", skipping.\n";
-
-                continue;
-            }
-
-            switch (cfg.shape)
-            {
-            case FieldDumpShape::Grid3D:
-                host::copyAndSaveToBinary<size::cells()>(d_ptr, SIM_DIR, STEP, cfg.name);
-
-                break;
-
-            case FieldDumpShape::Plane2D:
-                host::copyAndSaveToBinary<size::stride()>(d_ptr, SIM_DIR, STEP, cfg.name);
-
-                break;
-            }
         }
     }
 }

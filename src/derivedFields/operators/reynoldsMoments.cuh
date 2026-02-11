@@ -28,7 +28,7 @@ SourceFiles
 #ifndef REYNOLDSMOMENTS_CUH
 #define REYNOLDSMOMENTS_CUH
 
-#include "functions/ioFields.cuh"
+#include "fileIO/fields.cuh"
 
 #if REYNOLDS_MOMENTS
 

@@ -16,7 +16,7 @@ Description
     Core LBM kernels for moment computation, collision–streaming, forcing, and coupled phase-field transport
 
 Namespace
-    LBM
+    lbm
 
 SourceFiles
     lbm.cuh
@@ -26,7 +26,7 @@ SourceFiles
 #ifndef LBM_CUH
 #define LBM_CUH
 
-#include "include/LBMIncludes.cuh"
+#include "LBMIncludes.cuh"
 
 namespace lbm
 {

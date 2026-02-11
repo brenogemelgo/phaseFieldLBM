@@ -16,7 +16,7 @@ Description
     Droplet flow case definition with initialization and boundary hooks
 
 Namespace
-    LBM
+    lbm
 
 SourceFiles
     Droplet.cuh

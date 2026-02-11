@@ -16,7 +16,7 @@ Description
     Base interface for compile-time flow case definitions
 
 Namespace
-    LBM
+    lbm
 
 SourceFiles
     FlowCase.cuh
@@ -27,7 +27,7 @@ SourceFiles
 #define FLOWCASE_CUH
 
 #include "cuda/utils.cuh"
-#include "include/LBMIncludes.cuh"
+#include "LBMIncludes.cuh"
 
 namespace lbm
 {

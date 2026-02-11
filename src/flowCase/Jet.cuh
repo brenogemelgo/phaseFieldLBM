@@ -16,7 +16,7 @@ Description
     Jet flow case definition with inflow, outflow, and periodic boundary conditions
 
 Namespace
-    LBM
+    lbm
 
 SourceFiles
     Jet.cuh

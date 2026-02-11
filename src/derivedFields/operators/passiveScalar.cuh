@@ -28,7 +28,7 @@ SourceFiles
 #ifndef PASSIVESCALAR_CUH
 #define PASSIVESCALAR_CUH
 
-#include "functions/ioFields.cuh"
+#include "fileIO/fields.cuh"
 
 #if PASSIVE_SCALAR
 

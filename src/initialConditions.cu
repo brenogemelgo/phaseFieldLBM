@@ -16,7 +16,7 @@ Description
     Initial condition kernels for jet and droplet setups, density initialization, and equilibrium distribution assignment
 
 Namespace
-    LBM
+    lbm
 
 SourceFiles
     initialConditions.cu
@@ -26,7 +26,7 @@ SourceFiles
 #ifndef INITIALCONDITIONS_CUH
 #define INITIALCONDITIONS_CUH
 
-#include "include/LBMIncludes.cuh"
+#include "LBMIncludes.cuh"
 
 namespace lbm
 {

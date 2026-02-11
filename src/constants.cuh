@@ -16,8 +16,8 @@ Description
    Centralized compile-time configuration of velocity sets, flow cases, mesh, and physical parameters
 
 Namespace
-    LBM
-    Phase
+    lbm
+    phase
 
 SourceFiles
     constants.cuh

@@ -16,7 +16,7 @@ Description
     Unified device-side implementation of inflow, outflow, and periodic LBM boundary conditions
 
 Namespace
-    LBM
+    lbm
 
 SourceFiles
     BoundaryConditions.cuh
@@ -158,7 +158,7 @@ namespace lbm
                     }
                 });
 
-            d.g[6 * size::cells() + idx3_zm1] = phase::velocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - phase::velocitySet::as2() * physics::u_inf);
+            d.g[6 * size::cells() + idx3_zm1] = phase::velocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - phase::velocitySet::as2() * uz);
         }
 
         __device__ static inline void periodicX(LBMFields d)

@@ -16,7 +16,7 @@ Description
     Centralized kernel declarations for LBM initialization, core routines, and boundary conditions
 
 Namespace
-    LBM
+    lbm
 
 SourceFiles
     LBMIncludes.cuh

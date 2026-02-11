@@ -27,7 +27,7 @@ Source files
 #define DERIVEDFIELDS_CUH
 
 #include "cuda/utils.cuh"
-#include "functions/ioFields.cuh"
+#include "fileIO/fields.cuh"
 #include "fieldAllocate/FieldAllocate.cuh"
 
 #include "operators/timeAverage.cuh"

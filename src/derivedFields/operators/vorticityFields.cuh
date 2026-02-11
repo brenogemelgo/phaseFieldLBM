@@ -28,7 +28,7 @@ SourceFiles
 #ifndef VORTICITYFIELDS_CUH
 #define VORTICITYFIELDS_CUH
 
-#include "functions/ioFields.cuh"
+#include "fileIO/fields.cuh"
 
 #if VORTICITY_FIELDS
 
