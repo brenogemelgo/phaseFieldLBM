@@ -65,7 +65,7 @@ static constexpr int NSTEPS = 200000;
 #elif defined(SAMPLE_MODE)
 
 static constexpr int MACRO_SAVE = 100;
-static constexpr int NSTEPS = 1000;
+static constexpr int NSTEPS = 10000;
 
 #elif defined(PROFILE_MODE)
 
@@ -81,7 +81,7 @@ namespace mesh
     static constexpr label_t res = 128;
     static constexpr label_t nx = res;
     static constexpr label_t ny = res;
-    static constexpr label_t nz = res * 2;
+    static constexpr label_t nz = res;
     static constexpr int diam = 30;
     static constexpr int radius = diam / 2;
 }
