@@ -133,10 +133,6 @@ namespace lbm
         device::constexpr_for<0, phase::velocitySet::Q()>(
             [&](const auto Q)
             {
-                // const label_t xx = x + static_cast<label_t>(phase::velocitySet::cx<Q>());
-                // const label_t yy = y + static_cast<label_t>(phase::velocitySet::cy<Q>());
-                // const label_t zz = z + static_cast<label_t>(phase::velocitySet::cz<Q>());
-
                 d.g[device::global4(x, y, z, Q)] = phase::velocitySet::g_eq<Q>(d.phi[idx3], ux, uy, uz);
             });
     }

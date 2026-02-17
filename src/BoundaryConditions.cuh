@@ -81,8 +81,8 @@ namespace lbm
                 {
                     if constexpr (velocitySet::cz<Q>() == 1)
                     {
-                        const label_t xx = x + static_cast<label_t>(velocitySet::cx<Q>());
-                        const label_t yy = y + static_cast<label_t>(velocitySet::cy<Q>());
+                        const int xx = static_cast<int>(x) + velocitySet::cx<Q>();
+                        const int yy = static_cast<int>(y) + velocitySet::cy<Q>();
 
                         const label_t fluidNode = device::global3(xx, yy, 1);
 
@@ -137,8 +137,8 @@ namespace lbm
                 {
                     if constexpr (velocitySet::cz<Q>() == -1)
                     {
-                        const label_t xx = x + static_cast<label_t>(velocitySet::cx<Q>());
-                        const label_t yy = y + static_cast<label_t>(velocitySet::cy<Q>());
+                        const int xx = static_cast<int>(x) + velocitySet::cx<Q>();
+                        const int yy = static_cast<int>(y) + velocitySet::cy<Q>();
 
                         const label_t fluidNode = device::global3(xx, yy, mesh::nz - 2);
 
@@ -309,9 +309,7 @@ namespace lbm
             const label_t y,
             const label_t STEP) noexcept
         {
-            const label_t t = STEP / static_cast<label_t>(10);
-            // const label_t t = STEP; // white-in-time. uncomment above to call each denominator steps
-            const uint32_t base = (0x9E3779B9u ^ SALT) ^ static_cast<uint32_t>(x) ^ (static_cast<uint32_t>(y) * 0x85EBCA6Bu) ^ (static_cast<uint32_t>(t) * 0xC2B2AE35u);
+            const uint32_t base = (0x9E3779B9u ^ SALT) ^ static_cast<uint32_t>(x) ^ (static_cast<uint32_t>(y) * 0x85EBCA6Bu) ^ (static_cast<uint32_t>(STEP) * 0xC2B2AE35u);
 
             const scalar_t rrx = uniform01(hash32(base));
             const scalar_t rry = uniform01(hash32(base ^ 0x68BC21EBu));
