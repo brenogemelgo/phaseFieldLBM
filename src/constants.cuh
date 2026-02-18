@@ -53,6 +53,8 @@ namespace phase
     using velocitySet = lbm::D3Q7;
 }
 
+static_assert(lbm::velocitySet::max_abs_c() == phase::velocitySet::max_abs_c(), "Hydrodynamic and phase velocity sets must have identical stencil radius.");
+
 // #define RUN_MODE
 #define SAMPLE_MODE
 // #define PROFILE_MODE

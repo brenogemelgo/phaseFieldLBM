@@ -52,55 +52,30 @@ namespace device
         const label_t y,
         const label_t z) noexcept
     {
-        return (x >= mesh::nx || y >= mesh::ny || z >= mesh::nz ||
-                x == 0 || x == mesh::nx - 1 ||
-                y == 0 || y == mesh::ny - 1 ||
-                z == 0 || z == mesh::nz - 1);
+        constexpr label_t r = lbm::velocitySet::max_abs_c();
+
+        return (x < r || y < r || z < r ||
+                x >= mesh::nx - r ||
+                y >= mesh::ny - r ||
+                z >= mesh::nz - r);
     }
 
-    __device__ [[nodiscard]] static inline label_t wrapX(const label_t xx) noexcept
+    template <label_t N>
+    __device__ [[nodiscard]] static inline label_t periodic_wrap(label_t x) noexcept
     {
-        if (xx == 0)
+        if (x < 1)
         {
-            return mesh::nx - 2;
+            return N - 2;
         }
-        if (xx == mesh::nx - 1)
+        if (x > N - 2)
         {
             return 1;
         }
 
-        return xx;
+        return x;
     }
 
-    __device__ [[nodiscard]] static inline label_t wrapY(const label_t yy) noexcept
-    {
-        if (yy == 0)
-        {
-            return mesh::ny - 2;
-        }
-        if (yy == mesh::ny - 1)
-        {
-            return 1;
-        }
-
-        return yy;
-    }
-
-    __device__ [[nodiscard]] static inline label_t wrapZ(const label_t zz) noexcept
-    {
-        if (zz == 0)
-        {
-            return mesh::nz - 2;
-        }
-        if (zz == mesh::nz - 1)
-        {
-            return 1;
-        }
-
-        return zz;
-    }
-
-    __device__ [[nodiscard]] static inline label_t globalThreadIdx(
+    __device__ [[nodiscard]] static inline label_t idx(
         const label_t tx,
         const label_t ty,
         const label_t tz,

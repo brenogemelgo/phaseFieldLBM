@@ -37,6 +37,11 @@ namespace lbm
             return static_cast<label_t>(Q_);
         }
 
+        __device__ __host__ [[nodiscard]] static inline consteval label_t max_abs_c() noexcept
+        {
+            return static_cast<label_t>(1);
+        }
+
         __device__ __host__ [[nodiscard]] static inline consteval scalar_t as2() noexcept
         {
             return static_cast<scalar_t>(3);

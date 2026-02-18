@@ -186,16 +186,16 @@ namespace lbm
                 const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, fsx, fsy, fsz);
                 const scalar_t fneq = velocitySet::f_neq<Q>(pxx, pyy, pzz, pxy, pxz, pyz, ux, uy, uz);
 
-                int xx = static_cast<int>(x) + velocitySet::cx<Q>();
-                int yy = static_cast<int>(y) + velocitySet::cy<Q>();
-                int zz = static_cast<int>(z) + velocitySet::cz<Q>();
+                label_t xx = x + static_cast<label_t>(velocitySet::cx<Q>());
+                label_t yy = y + static_cast<label_t>(velocitySet::cy<Q>());
+                label_t zz = z + static_cast<label_t>(velocitySet::cz<Q>());
 
                 // Periodic wrapping
                 if constexpr (flowCase::droplet_case())
                 {
-                    xx = device::wrapX(xx);
-                    yy = device::wrapY(yy);
-                    zz = device::wrapZ(zz);
+                    xx = device::periodic_wrap<mesh::nx>(xx);
+                    yy = device::periodic_wrap<mesh::ny>(yy);
+                    zz = device::periodic_wrap<mesh::nz>(zz);
                 }
 
                 d.f[device::global4(xx, yy, zz, Q)] = to_pop(feq + omco * fneq + force);
@@ -212,16 +212,16 @@ namespace lbm
                 const scalar_t geq = phase::velocitySet::g_eq<Q>(phi, ux, uy, uz);
                 const scalar_t hi = phase::velocitySet::anti_diffusion<Q>(sharp, normx, normy, normz);
 
-                int xx = static_cast<int>(x) + phase::velocitySet::cx<Q>();
-                int yy = static_cast<int>(y) + phase::velocitySet::cy<Q>();
-                int zz = static_cast<int>(z) + phase::velocitySet::cz<Q>();
+                label_t xx = x + static_cast<label_t>(phase::velocitySet::cx<Q>());
+                label_t yy = y + static_cast<label_t>(phase::velocitySet::cy<Q>());
+                label_t zz = z + static_cast<label_t>(phase::velocitySet::cz<Q>());
 
                 // Periodic wrapping
                 if constexpr (flowCase::droplet_case())
                 {
-                    xx = device::wrapX(xx);
-                    yy = device::wrapY(yy);
-                    zz = device::wrapZ(zz);
+                    xx = device::periodic_wrap<mesh::nx>(xx);
+                    yy = device::periodic_wrap<mesh::ny>(yy);
+                    zz = device::periodic_wrap<mesh::nz>(zz);
                 }
 
                 d.g[device::global4(xx, yy, zz, Q)] = geq + hi;
