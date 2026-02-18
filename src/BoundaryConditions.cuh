@@ -76,6 +76,8 @@ namespace lbm
 
             const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
 
+            const label_t t_store = t + 1;
+
             device::constexpr_for<0, velocitySet::Q()>(
                 [&](const auto Q)
                 {
@@ -98,7 +100,7 @@ namespace lbm
                                                                     d.pxy[fluidNode], d.pxz[fluidNode], d.pyz[fluidNode],
                                                                     d.ux[fluidNode], d.uy[fluidNode], d.uz[fluidNode]);
 
-                        d.f[Q * size::cells() + fluidNode] = to_pop(feq + relaxation::omco_zmin() * fneq);
+                        esopull::store_phys<velocitySet, Q>(d, xx, yy, 1, feq + relaxation::omco_zmin() * fneq, t_store);
                     }
                 });
 

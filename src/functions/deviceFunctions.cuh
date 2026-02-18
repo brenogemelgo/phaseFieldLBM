@@ -99,4 +99,157 @@ namespace device
     }
 }
 
+namespace lbm
+{
+    namespace esopull
+    {
+        // Load physical populations into pop[] for node (x,y,z) at time t
+        template <class VS>
+        __device__ inline void load_f(
+            const LBMFields &d,
+            const label_t x, const label_t y, const label_t z,
+            scalar_t *__restrict__ pop,
+            const label_t t) noexcept
+        {
+            const label_t n = device::global3(x, y, z);
+
+            pop[0] = from_pop(d.f[0 * size::cells() + n]); // Listing A5 line 2
+
+            const bool odd = (t & 1);
+
+            // i = 1,3,5,... are the "base" indices in consecutive opposite pairs (i,i+1)
+            device::constexpr_for<0, (VS::Q() - 1) / 2>(
+                [&](const auto K)
+                {
+                    constexpr label_t k = K.value;
+                    constexpr label_t i = static_cast<label_t>(2 * k + 1);
+
+                    const label_t xx = x + static_cast<label_t>(VS::template cx<i>());
+                    const label_t yy = y + static_cast<label_t>(VS::template cy<i>());
+                    const label_t zz = z + static_cast<label_t>(VS::template cz<i>());
+
+                    const label_t j = device::global3(xx, yy, zz); // j[i] in Listing A5
+
+                    // Listing A5:
+                    // fhn[i]   = load(n, odd ? i : i+1)
+                    // fhn[i+1] = load(j[i], odd ? i+1 : i)
+                    pop[i] = from_pop(d.f[(odd ? i : (i + 1)) * size::cells() + n]);
+                    pop[i + 1] = from_pop(d.f[(odd ? (i + 1) : i) * size::cells() + j]);
+                });
+        }
+
+        // Store physical post-collision populations post[] for node (x,y,z) for step t
+        // This writes exactly the addresses that load_f() reads at time t (race-free single-buffer).
+        template <class VS>
+        __device__ inline void store_f(
+            LBMFields d,
+            const label_t x, const label_t y, const label_t z,
+            const scalar_t *__restrict__ post,
+            const label_t t) noexcept
+        {
+            const label_t n = device::global3(x, y, z);
+
+            d.f[0 * size::cells() + n] = to_pop(post[0]); // Listing A5 line 9
+
+            const bool odd = (t & 1);
+
+            device::constexpr_for<0, (VS::Q() - 1) / 2>(
+                [&](const auto K)
+                {
+                    constexpr label_t k = K.value;
+                    constexpr label_t i = static_cast<label_t>(2 * k + 1);
+
+                    const label_t xx = x + static_cast<label_t>(VS::template cx<i>());
+                    const label_t yy = y + static_cast<label_t>(VS::template cy<i>());
+                    const label_t zz = z + static_cast<label_t>(VS::template cz<i>());
+
+                    const label_t j = device::global3(xx, yy, zz);
+
+                    // Listing A5:
+                    // store(j[i], odd ? i+1 : i, fhn[i])
+                    // store(n,    odd ? i   : i+1, fhn[i+1])
+                    d.f[(odd ? (i + 1) : i) * size::cells() + j] = to_pop(post[i]);
+                    d.f[(odd ? i : (i + 1)) * size::cells() + n] = to_pop(post[i + 1]);
+                });
+        }
+
+        // ---- BC helpers: write/read a single physical direction Q at node (x,y,z) for time t_phys ----
+        // This is needed because in Esoteric Pull, some physical directions live in neighbor storage.
+        template <class VS, label_t Q>
+        __device__ inline scalar_t load_phys(
+            const LBMFields &d,
+            const label_t x, const label_t y, const label_t z,
+            const label_t t_phys) noexcept
+        {
+            if constexpr (Q == 0)
+            {
+                const label_t n = device::global3(x, y, z);
+                return from_pop(d.f[0 * size::cells() + n]);
+            }
+            else
+            {
+                constexpr label_t base = (Q & 1) ? Q : (Q - 1); // odd index i
+                constexpr label_t opp = base + 1;               // even index i+1
+                const bool odd = (t_phys & 1);
+
+                if constexpr (Q & 1)
+                {
+                    // physical odd direction stored at center: dir = odd ? Q : Q+1
+                    const label_t n = device::global3(x, y, z);
+                    const label_t dir = odd ? Q : (Q + 1);
+                    return from_pop(d.f[dir * size::cells() + n]);
+                }
+                else
+                {
+                    // physical even direction stored at neighbor j[base] with dir = odd ? (base+1) : base
+                    const label_t xx = x + static_cast<label_t>(VS::template cx<base>());
+                    const label_t yy = y + static_cast<label_t>(VS::template cy<base>());
+                    const label_t zz = z + static_cast<label_t>(VS::template cz<base>());
+                    const label_t j = device::global3(xx, yy, zz);
+
+                    const label_t dir = odd ? opp : base;
+                    return from_pop(d.f[dir * size::cells() + j]);
+                }
+            }
+        }
+
+        template <class VS, label_t Q>
+        __device__ inline void store_phys(
+            LBMFields d,
+            const label_t x, const label_t y, const label_t z,
+            const scalar_t val,
+            const label_t t_phys) noexcept
+        {
+            if constexpr (Q == 0)
+            {
+                const label_t n = device::global3(x, y, z);
+                d.f[0 * size::cells() + n] = to_pop(val);
+            }
+            else
+            {
+                constexpr label_t base = (Q & 1) ? Q : (Q - 1);
+                constexpr label_t opp = base + 1;
+                const bool odd = (t_phys & 1);
+
+                if constexpr (Q & 1)
+                {
+                    const label_t n = device::global3(x, y, z);
+                    const label_t dir = odd ? Q : (Q + 1);
+                    d.f[dir * size::cells() + n] = to_pop(val);
+                }
+                else
+                {
+                    const label_t xx = x + static_cast<label_t>(VS::template cx<base>());
+                    const label_t yy = y + static_cast<label_t>(VS::template cy<base>());
+                    const label_t zz = z + static_cast<label_t>(VS::template cz<base>());
+                    const label_t j = device::global3(xx, yy, zz);
+
+                    const label_t dir = odd ? opp : base;
+                    d.f[dir * size::cells() + j] = to_pop(val);
+                }
+            }
+        }
+    }
+}
+
 #endif

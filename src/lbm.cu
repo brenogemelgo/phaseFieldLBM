@@ -30,7 +30,50 @@ SourceFiles
 
 namespace lbm
 {
-    __global__ void computeMoments(LBMFields d)
+    template <class VS>
+    __global__ void encodeStandardToEsoteric_t0(LBMFields d)
+    {
+        const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
+        const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
+        const label_t z = threadIdx.z + blockIdx.z * blockDim.z;
+
+        if (device::guard(x, y, z))
+            return;
+
+        const label_t n = device::global3(x, y, z);
+
+        // read physical pops from standard layout
+        scalar_t phys[VS::Q()];
+        device::constexpr_for<0, VS::Q()>(
+            [&](const auto Q)
+            {
+                phys[Q] = from_pop(d.f[Q * size::cells() + n]);
+            });
+
+        // write Esoteric Pull storage so that load_f(..., t=0) reconstructs phys[]
+        // t=0 => odd=false
+        d.f[0 * size::cells() + n] = to_pop(phys[0]);
+
+        device::constexpr_for<0, (VS::Q() - 1) / 2>(
+            [&](const auto K)
+            {
+                constexpr label_t k = K.value;
+                constexpr label_t i = static_cast<label_t>(2 * k + 1);
+
+                const label_t xx = x + static_cast<label_t>(VS::template cx<i>());
+                const label_t yy = y + static_cast<label_t>(VS::template cy<i>());
+                const label_t zz = z + static_cast<label_t>(VS::template cz<i>());
+                const label_t j = device::global3(xx, yy, zz);
+
+                // From Listing A5 load for even t:
+                // phys[i]   = f[i+1] at n  => store f[i+1](n) = phys[i]
+                // phys[i+1] = f[i]   at j  => store f[i](j)   = phys[i+1]
+                d.f[(i + 1) * size::cells() + n] = to_pop(phys[i]);
+                d.f[i * size::cells() + j] = to_pop(phys[i + 1]);
+            });
+    }
+
+    __global__ void computeMoments(LBMFields d, const label_t STEP)
     {
         const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
         const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -43,15 +86,14 @@ namespace lbm
 
         const label_t idx3 = device::global3(x, y, z);
 
-        scalar_t rho = static_cast<scalar_t>(0);
         scalar_t pop[velocitySet::Q()];
+        esopull::load_f<velocitySet>(d, x, y, z, pop, STEP);
 
+        scalar_t rho = static_cast<scalar_t>(0);
         device::constexpr_for<0, velocitySet::Q()>(
             [&](const auto Q)
             {
-                const scalar_t fq = from_pop(d.f[Q * size::cells() + idx3]);
-                pop[Q] = fq;
-                rho += fq;
+                rho += pop[Q];
             });
 
         rho += static_cast<scalar_t>(1);
@@ -92,7 +134,6 @@ namespace lbm
         scalar_t pxy = static_cast<scalar_t>(0), pxz = static_cast<scalar_t>(0), pyz = static_cast<scalar_t>(0);
 
         const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
-
         device::constexpr_for<0, velocitySet::Q()>(
             [&](const auto Q)
             {
@@ -127,7 +168,7 @@ namespace lbm
         d.pyz[idx3] = pyz;
     }
 
-    __global__ void streamCollide(LBMFields d)
+    __global__ void streamCollide(LBMFields d, const label_t STEP)
     {
         const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
         const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -171,8 +212,9 @@ namespace lbm
         }
 
         const scalar_t omco = static_cast<scalar_t>(1) - omega;
-
         const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
+
+        scalar_t post[velocitySet::Q()];
 
         device::constexpr_for<0, velocitySet::Q()>(
             [&](const auto Q)
@@ -182,25 +224,14 @@ namespace lbm
                 constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
 
                 const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
-
                 const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
                 const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, fsx, fsy, fsz);
                 const scalar_t fneq = velocitySet::f_neq<Q>(pxx, pyy, pzz, pxy, pxz, pyz, ux, uy, uz);
 
-                label_t xx = x + static_cast<label_t>(velocitySet::cx<Q>());
-                label_t yy = y + static_cast<label_t>(velocitySet::cy<Q>());
-                label_t zz = z + static_cast<label_t>(velocitySet::cz<Q>());
-
-                // Periodic wrapping
-                if constexpr (flowCase::droplet_case())
-                {
-                    xx = device::periodic_wrap<mesh::nx>(xx);
-                    yy = device::periodic_wrap<mesh::ny>(yy);
-                    zz = device::periodic_wrap<mesh::nz>(zz);
-                }
-
-                d.f[device::global4(xx, yy, zz, Q)] = to_pop(feq + omco * fneq + static_cast<scalar_t>(0.5) * force);
+                post[Q] = feq + omco * fneq + static_cast<scalar_t>(0.5) * force;
             });
+
+        esopull::store_f<velocitySet>(d, x, y, z, post, STEP);
 
         const scalar_t normx = d.normx[idx3];
         const scalar_t normy = d.normy[idx3];
@@ -236,18 +267,18 @@ namespace lbm
 
     __global__ void callOutflow(LBMFields d)
     {
-        BoundaryConditions::applyOutflow(d);
+        // BoundaryConditions::applyOutflow(d);
         // BoundaryConditions::applyConvectiveOutflow(d);
     }
 
     __global__ void callPeriodicX(LBMFields d)
     {
-        BoundaryConditions::periodicX(d);
+        // BoundaryConditions::periodicX(d);
     }
 
     __global__ void callPeriodicY(LBMFields d)
     {
-        BoundaryConditions::periodicY(d);
+        // BoundaryConditions::periodicY(d);
     }
 }
 

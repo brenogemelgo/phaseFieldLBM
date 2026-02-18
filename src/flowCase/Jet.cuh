@@ -59,6 +59,8 @@ namespace lbm
             const cudaStream_t queue,
             const label_t STEP)
         {
+            // const label_t TPHYS = STEP + 1;
+
             callInflow<<<gridZ, blockZ, dynamic, queue>>>(fields, STEP);
             callOutflow<<<gridZ, blockZ, dynamic, queue>>>(fields);
             callPeriodicX<<<gridX, blockX, dynamic, queue>>>(fields);

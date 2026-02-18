@@ -25,7 +25,6 @@ SourceFiles
 #include "functions/hostFunctions.cuh"
 #include "fileIO/fields.cuh"
 #include "postProcess/PostProcess.cuh"
-#include "cuda/CUDAGraph.cuh"
 #include "initialConditions.cu"
 #include "BoundaryConditions.cuh"
 #include "phaseField.cuh"
@@ -115,6 +114,8 @@ int main(int argc, char *argv[])
     lbm::flowCase::initialConditions<grid3D, block3D, dynamic>(fields, queue);
     lbm::setDistros<<<grid3D, block3D, dynamic, queue>>>(fields);
 
+    lbm::encodeStandardToEsoteric_t0<lbm::velocitySet><<<grid3D, block3D, dynamic, queue>>>(fields);
+
     // Make sure everything is initialized
     checkCudaErrorsOutline(cudaDeviceSynchronize());
 
@@ -151,19 +152,20 @@ int main(int argc, char *argv[])
     // Warmup (optional)
     checkCudaErrorsOutline(cudaDeviceSynchronize());
 
-    // Build CUDA Graph
-    cudaGraph_t graph{};
-    cudaGraphExec_t graphExec{};
-    graph::captureGraph<grid3D, block3D, dynamic>(graph, graphExec, fields, queue);
-
     // Start clock
     const auto START_TIME = std::chrono::high_resolution_clock::now();
 
     // Time loop
     for (label_t STEP = 0; STEP <= NSTEPS; ++STEP)
     {
-        // Launch captured sequence
-        cudaGraphLaunch(graphExec, queue);
+        // Phase field
+        phase::computePhase<<<grid3D, block3D, dynamic, queue>>>(fields);
+        phase::computeNormals<<<grid3D, block3D, dynamic, queue>>>(fields);
+        phase::computeForces<<<grid3D, block3D, dynamic, queue>>>(fields);
+
+        // Hydrodynamics
+        lbm::computeMoments<<<grid3D, block3D, dynamic, queue>>>(fields, STEP);
+        lbm::streamCollide<<<grid3D, block3D, dynamic, queue>>>(fields, STEP);
 
         // Flow case specific boundary conditions
         lbm::flowCase::boundaryConditions<gridX, blockX, gridY, blockY, gridZ, blockZ, dynamic>(fields, queue, STEP);
@@ -190,10 +192,6 @@ int main(int argc, char *argv[])
     // Make sure everything is done on the GPU
     cudaStreamSynchronize(queue);
     const auto END_TIME = std::chrono::high_resolution_clock::now();
-
-    // Destroy CUDA Graph resources
-    checkCudaErrorsOutline(cudaGraphExecDestroy(graphExec));
-    checkCudaErrorsOutline(cudaGraphDestroy(graph));
 
     // Destroy stream
     checkCudaErrorsOutline(cudaStreamDestroy(queue));
