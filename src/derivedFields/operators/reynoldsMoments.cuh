@@ -100,14 +100,14 @@ namespace derived
 {
     namespace reynolds
     {
-        constexpr std::array<host::FieldConfig, 6> fields{{
+        static constexpr auto fields = std::to_array<host::FieldConfig>({
             {host::FieldID::Avg_uxux, "avg_uxux", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_uyuy, "avg_uyuy", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_uzuz, "avg_uzuz", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_uxuy, "avg_uxuy", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_uxuz, "avg_uxuz", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_uyuz, "avg_uyuz", host::FieldDumpShape::Grid3D, true},
-        }};
+        });
 
         template <dim3 grid, dim3 block, size_t dynamic>
         __host__ static inline void launch(

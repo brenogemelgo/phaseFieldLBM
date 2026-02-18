@@ -127,9 +127,10 @@ int main(int argc, char *argv[])
     host::PostProcess write;
 
     // Base fields (always saved)
-    constexpr std::array<host::FieldConfig, 2> BASE_FIELDS{
-        {{host::FieldID::Phi, "phi", host::FieldDumpShape::Grid3D, true},
-         {host::FieldID::Rho, "rho", host::FieldDumpShape::Grid3D, true}}};
+    static constexpr auto BASE_FIELDS = std::to_array<host::FieldConfig>({
+        {host::FieldID::Rho, "rho", host::FieldDumpShape::Grid3D, true},
+        {host::FieldID::Uz, "uz", host::FieldDumpShape::Grid3D, true},
+    });
 
     // Derived fields from modules (possibly empty)
     const auto DERIVED_FIELDS = dfields.makeOutputFields();

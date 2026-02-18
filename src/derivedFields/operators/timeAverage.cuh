@@ -86,12 +86,12 @@ namespace derived
 {
     namespace average
     {
-        constexpr std::array<host::FieldConfig, 4> fields{{
+        static constexpr auto fields = std::to_array<host::FieldConfig>({
             {host::FieldID::Avg_phi, "avg_phi", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_ux, "avg_ux", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_uy, "avg_uy", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Avg_uz, "avg_uz", host::FieldDumpShape::Grid3D, true},
-        }};
+        });
 
         template <dim3 grid, dim3 block, size_t dynamic>
         __host__ static inline void launch(

@@ -55,8 +55,8 @@ namespace phase
 
 static_assert(lbm::velocitySet::max_abs_c() == phase::velocitySet::max_abs_c(), "Hydrodynamic and phase velocity sets must have identical stencil radius.");
 
-// #define RUN_MODE
-#define SAMPLE_MODE
+#define RUN_MODE
+// #define SAMPLE_MODE
 // #define PROFILE_MODE
 
 #if defined(RUN_MODE)
@@ -83,8 +83,8 @@ namespace mesh
     static constexpr label_t res = 128;
     static constexpr label_t nx = res;
     static constexpr label_t ny = res;
-    static constexpr label_t nz = res;
-    static constexpr int diam = 30;
+    static constexpr label_t nz = res * 2;
+    static constexpr int diam = 20;
     static constexpr int radius = diam / 2;
 }
 

@@ -104,7 +104,7 @@ namespace lbm
 
                 const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
                 const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, fsx, fsy, fsz);
-                const scalar_t fneq = pop[Q] - feq + force;
+                const scalar_t fneq = pop[Q] - feq + static_cast<scalar_t>(0.5) * force;
 
                 pxx += fneq * cx * cx;
                 pyy += fneq * cy * cy;
@@ -159,10 +159,11 @@ namespace lbm
 
         if constexpr (flowCase::jet_case())
         {
-            const scalar_t tau_phi = (static_cast<scalar_t>(1) - phi) * relaxation::tau_water() + phi * relaxation::tau_oil();
-            const scalar_t r = device::sponge_ramp(z);
-            const scalar_t tau_eff = tau_phi + r * (relaxation::tau_zmax(phi) - tau_phi);
-            omega = static_cast<scalar_t>(1) / tau_eff;
+            // const scalar_t tau_phi = (static_cast<scalar_t>(1) - phi) * relaxation::tau_water() + phi * relaxation::tau_oil();
+            // const scalar_t r = device::sponge_ramp(z);
+            // const scalar_t tau_eff = tau_phi + r * (relaxation::tau_zmax(phi) - tau_phi);
+            // omega = static_cast<scalar_t>(1) / tau_eff;
+            omega = relaxation::omega_ref();
         }
         else
         {
@@ -198,7 +199,7 @@ namespace lbm
                     zz = device::periodic_wrap<mesh::nz>(zz);
                 }
 
-                d.f[device::global4(xx, yy, zz, Q)] = to_pop(feq + omco * fneq + force);
+                d.f[device::global4(xx, yy, zz, Q)] = to_pop(feq + omco * fneq + static_cast<scalar_t>(0.5) * force);
             });
 
         const scalar_t normx = d.normx[idx3];
@@ -236,6 +237,7 @@ namespace lbm
     __global__ void callOutflow(LBMFields d)
     {
         BoundaryConditions::applyOutflow(d);
+        // BoundaryConditions::applyConvectiveOutflow(d);
     }
 
     __global__ void callPeriodicX(LBMFields d)

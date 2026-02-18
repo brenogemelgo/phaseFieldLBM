@@ -45,9 +45,9 @@ namespace derived
 {
     namespace passive
     {
-        constexpr std::array<host::FieldConfig, 1> fields{{
+        static constexpr auto fields = std::to_array<host::FieldConfig> fields({
             {host::FieldID::C, "c", host::FieldDumpShape::Grid3D, true},
-        }};
+        });
 
         template <dim3 grid, dim3 block, size_t dynamic>
         __host__ static inline void launch(

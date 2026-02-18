@@ -148,6 +148,13 @@ namespace math
         }
     }
 
+    template <scalar_t Lo, scalar_t Hi>
+    __device__ __host__ [[nodiscard]] static inline scalar_t clamp(const scalar_t x) noexcept
+    {
+        static_assert(Lo <= Hi, "Invalid clamp bounds");
+        return max(Lo, min(x, Hi));
+    }
+
     __device__ __host__ [[nodiscard]] static inline scalar_t cos(const scalar_t x) noexcept
     {
         if constexpr (std::is_same_v<scalar_t, float>)

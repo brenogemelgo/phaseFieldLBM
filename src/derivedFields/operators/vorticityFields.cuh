@@ -109,12 +109,12 @@ namespace derived
 {
     namespace vorticity
     {
-        constexpr std::array<host::FieldConfig, 4> fields{{
+        static constexpr auto fields = std::to_array<host::FieldConfig>({
             {host::FieldID::Vort_x, "vort_x", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Vort_y, "vort_y", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Vort_z, "vort_z", host::FieldDumpShape::Grid3D, true},
             {host::FieldID::Vort_mag, "vort_mag", host::FieldDumpShape::Grid3D, true},
-        }};
+        });
 
         template <dim3 grid, dim3 block, size_t dynamic>
         __host__ static inline void launch(
