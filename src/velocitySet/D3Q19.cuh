@@ -67,6 +67,11 @@ namespace lbm
             return static_cast<scalar_t>(static_cast<double>(1) / static_cast<double>(36));
         }
 
+        __device__ __host__ [[nodiscard]] static inline consteval scalar_t w_3() noexcept
+        {
+            return static_cast<scalar_t>(0); // Kept for compatibility
+        }
+
         template <label_t Q>
         __device__ __host__ [[nodiscard]] static inline consteval scalar_t w() noexcept
         {

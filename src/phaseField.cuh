@@ -194,20 +194,20 @@ namespace phase
             const label_t xm1_yp1_zm1 = device::global3(x - 1, y + 1, z - 1);
             const label_t xm1_yp1_zp1 = device::global3(x - 1, y + 1, z + 1);
 
-            scx += lbm::D3Q27::w_3() * (d.normx[xp1_yp1_zp1] - d.normx[xm1_ym1_zm1] +
-                                        d.normx[xp1_yp1_zm1] - d.normx[xm1_ym1_zp1] +
-                                        d.normx[xp1_ym1_zp1] - d.normx[xm1_yp1_zm1] +
-                                        d.normx[xp1_ym1_zm1] - d.normx[xm1_yp1_zp1]);
+            scx += lbm::velocitySet::w_3() * (d.normx[xp1_yp1_zp1] - d.normx[xm1_ym1_zm1] +
+                                              d.normx[xp1_yp1_zm1] - d.normx[xm1_ym1_zp1] +
+                                              d.normx[xp1_ym1_zp1] - d.normx[xm1_yp1_zm1] +
+                                              d.normx[xp1_ym1_zm1] - d.normx[xm1_yp1_zp1]);
 
-            scy += lbm::D3Q27::w_3() * (d.normy[xp1_yp1_zp1] - d.normy[xm1_ym1_zm1] +
-                                        d.normy[xp1_yp1_zm1] - d.normy[xm1_ym1_zp1] +
-                                        d.normy[xm1_yp1_zm1] - d.normy[xp1_ym1_zp1] +
-                                        d.normy[xm1_yp1_zp1] - d.normy[xp1_ym1_zm1]);
+            scy += lbm::velocitySet::w_3() * (d.normy[xp1_yp1_zp1] - d.normy[xm1_ym1_zm1] +
+                                              d.normy[xp1_yp1_zm1] - d.normy[xm1_ym1_zp1] +
+                                              d.normy[xm1_yp1_zm1] - d.normy[xp1_ym1_zp1] +
+                                              d.normy[xm1_yp1_zp1] - d.normy[xp1_ym1_zm1]);
 
-            scz += lbm::D3Q27::w_3() * (d.normz[xp1_yp1_zp1] - d.normz[xm1_ym1_zm1] +
-                                        d.normz[xm1_ym1_zp1] - d.normz[xp1_yp1_zm1] +
-                                        d.normz[xp1_ym1_zp1] - d.normz[xm1_yp1_zm1] +
-                                        d.normz[xm1_yp1_zp1] - d.normz[xp1_ym1_zm1]);
+            scz += lbm::velocitySet::w_3() * (d.normz[xp1_yp1_zp1] - d.normz[xm1_ym1_zm1] +
+                                              d.normz[xm1_ym1_zp1] - d.normz[xp1_yp1_zm1] +
+                                              d.normz[xp1_ym1_zp1] - d.normz[xm1_yp1_zm1] +
+                                              d.normz[xm1_yp1_zp1] - d.normz[xp1_ym1_zm1]);
         }
 
         const scalar_t curvature = lbm::velocitySet::as2() * (scx + scy + scz);
