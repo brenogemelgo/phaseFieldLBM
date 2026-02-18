@@ -86,21 +86,21 @@ int main(int argc, char *argv[])
     dfields.allocate(fields);
 
     // Block-wise configuration
-    constexpr dim3 block3D(block::nx, block::ny, block::nz);
+    constexpr dim3 block3D(block::nx(), block::ny(), block::nz());
     constexpr dim3 grid3D(host::divUp(mesh::nx, block3D.x),
                           host::divUp(mesh::ny, block3D.y),
                           host::divUp(mesh::nz, block3D.z));
 
     // Periodic x-direction
-    constexpr dim3 blockX(block::ny, block::nz, 1u);
+    constexpr dim3 blockX(block::ny(), block::nz(), 1u);
     constexpr dim3 gridX(host::divUp(mesh::ny, blockX.x), host::divUp(mesh::nz, blockX.y), 1u);
 
     // Periodic y-direction
-    constexpr dim3 blockY(block::nx, block::nz, 1u);
+    constexpr dim3 blockY(block::nx(), block::nz(), 1u);
     constexpr dim3 gridY(host::divUp(mesh::nx, blockY.x), host::divUp(mesh::nz, blockY.y), 1u);
 
     // Inlet and outlet
-    constexpr dim3 blockZ(block::nx, block::ny, 1u);
+    constexpr dim3 blockZ(block::nx(), block::ny(), 1u);
     constexpr dim3 gridZ(host::divUp(mesh::nx, blockZ.x), host::divUp(mesh::ny, blockZ.y), 1u);
 
     // Dynamic shared memory size

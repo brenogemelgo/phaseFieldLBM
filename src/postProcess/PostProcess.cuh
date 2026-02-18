@@ -26,9 +26,8 @@ SourceFiles
 #ifndef POSTPROCESS_CUH
 #define POSTPROCESS_CUH
 
-#include "cuda/utils.cuh"
+#include "LBMIncludes.cuh"
 #include "fileIO/fields.cuh"
-#include "structs/LBMFields.cuh"
 
 namespace host
 {

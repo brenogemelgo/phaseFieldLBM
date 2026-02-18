@@ -26,7 +26,7 @@ Source files
 #ifndef DERIVEDFIELDS_CUH
 #define DERIVEDFIELDS_CUH
 
-#include "cuda/utils.cuh"
+#include "LBMIncludes.cuh"
 #include "fileIO/fields.cuh"
 #include "fieldAllocate/FieldAllocate.cuh"
 

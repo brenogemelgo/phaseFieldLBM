@@ -37,19 +37,54 @@ SourceFiles
 
 namespace block
 {
-    __device__ __host__ [[nodiscard]] static inline consteval unsigned num_block_x() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval label_t nx() noexcept
     {
-        return (mesh::nx + block::nx - 1) / block::nx;
+        return 8;
     }
 
-    __device__ __host__ [[nodiscard]] static inline consteval unsigned num_block_y() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval label_t ny() noexcept
     {
-        return (mesh::ny + block::ny - 1) / block::ny;
+        return 8;
     }
 
-    __device__ __host__ [[nodiscard]] static inline consteval unsigned size() noexcept
+    __device__ __host__ [[nodiscard]] static inline consteval label_t nz() noexcept
     {
-        return block::nx * block::ny * block::nz;
+        return 8;
+    }
+
+    __device__ __host__ [[nodiscard]] static inline consteval label_t num_x() noexcept
+    {
+        return (mesh::nx + block::nx() - 1) / block::nx();
+    }
+
+    __device__ __host__ [[nodiscard]] static inline consteval label_t num_y() noexcept
+    {
+        return (mesh::ny + block::ny() - 1) / block::ny();
+    }
+
+    __device__ __host__ [[nodiscard]] static inline consteval label_t size() noexcept
+    {
+        return block::nx() * block::ny() * block::nz();
+    }
+
+    __device__ __host__ [[nodiscard]] static inline consteval label_t pad() noexcept
+    {
+        return 1;
+    }
+
+    __device__ __host__ [[nodiscard]] static inline consteval label_t tile_nx() noexcept
+    {
+        return block::nx() + 2 * block::pad();
+    }
+
+    __device__ __host__ [[nodiscard]] static inline consteval label_t tile_ny() noexcept
+    {
+        return block::ny() + 2 * block::pad();
+    }
+
+    __device__ __host__ [[nodiscard]] static inline consteval label_t tile_nz() noexcept
+    {
+        return block::nz() + 2 * block::pad();
     }
 }
 

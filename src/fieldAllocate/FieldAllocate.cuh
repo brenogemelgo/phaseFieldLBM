@@ -26,7 +26,7 @@ SourceFiles
 #ifndef FIELDALLOCATOR_CUH
 #define FIELDALLOCATOR_CUH
 
-#include "cuda/utils.cuh"
+#include "LBMIncludes.cuh"
 
 namespace host
 {

@@ -83,7 +83,7 @@ namespace device
         const label_t by,
         const label_t bz) noexcept
     {
-        return tx + block::nx * (ty + block::ny * (tz + block::nz * (bx + block::num_block_x() * (by + block::num_block_y() * bz))));
+        return tx + block::nx() * (ty + block::ny() * (tz + block::nz() * (bx + block::num_x() * (by + block::num_y() * bz))));
     }
 
     __device__ static inline void prefetch_L2(const void *ptr) noexcept

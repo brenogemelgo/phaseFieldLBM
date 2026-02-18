@@ -13,31 +13,48 @@ Copyright (C) 2023 UDESC Geoenergia Lab
 Authors: Breno Gemelgo (Geoenergia Lab, UDESC)
 
 Description
-    Base interface for compile-time flow case definitions
-
-Namespace
-    lbm
+    CUDA-level precision control
 
 SourceFiles
-    FlowCase.cuh
+    precision.cuh
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef FLOWCASE_CUH
-#define FLOWCASE_CUH
+#ifndef PRECISION_CUH
+#define PRECISION_CUH
 
-#include "LBMIncludes.cuh"
+using label_t = uint32_t;
+using scalar_t = float;
 
-namespace lbm
+#if ENABLE_FP16
+
+#include <cuda_fp16.h>
+using pop_t = __half;
+
+__device__ [[nodiscard]] inline pop_t to_pop(const scalar_t x) noexcept
 {
-    class FlowCase
-    {
-    public:
-        __device__ __host__ [[nodiscard]] inline consteval FlowCase() noexcept {};
-    };
+    return __float2half(x);
 }
 
-#include "Droplet.cuh"
-#include "Jet.cuh"
+__device__ [[nodiscard]] inline scalar_t from_pop(const pop_t x) noexcept
+{
+    return __half2float(x);
+}
+
+#else
+
+using pop_t = scalar_t;
+
+__device__ [[nodiscard]] inline constexpr pop_t to_pop(const scalar_t x) noexcept
+{
+    return x;
+}
+
+__device__ [[nodiscard]] inline constexpr scalar_t from_pop(const pop_t x) noexcept
+{
+    return x;
+}
+
+#endif
 
 #endif

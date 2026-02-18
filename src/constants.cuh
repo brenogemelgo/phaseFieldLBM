@@ -27,8 +27,9 @@ SourceFiles
 #ifndef CONSTANTS_CUH
 #define CONSTANTS_CUH
 
-#include "cuda/utils.cuh"
-#include "structs/LBMFields.cuh"
+#include "LBMIncludes.cuh"
+#include "cuda/precision.cuh"
+#include "cuda/errorCheck.cuh"
 #include "functions/constexprFor.cuh"
 #include "velocitySet/VelocitySet.cuh"
 #include "flowCase/FlowCase.cuh"
