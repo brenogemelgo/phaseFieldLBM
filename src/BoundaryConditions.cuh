@@ -202,9 +202,9 @@ namespace lbm
         __device__ [[nodiscard]] static inline constexpr scalar_t white_noise(
             const label_t x,
             const label_t y,
-            const label_t STEP) noexcept
+            const label_t t) noexcept
         {
-            const uint32_t base = (0x9E3779B9u ^ SALT) ^ static_cast<uint32_t>(x) ^ (static_cast<uint32_t>(y) * 0x85EBCA6Bu) ^ (static_cast<uint32_t>(STEP) * 0xC2B2AE35u);
+            const uint32_t base = (0x9E3779B9u ^ SALT) ^ static_cast<uint32_t>(x) ^ (static_cast<uint32_t>(y) * 0x85EBCA6Bu) ^ (static_cast<uint32_t>(t) * 0xC2B2AE35u);
 
             const scalar_t rrx = uniform01(hash32(base));
             const scalar_t rry = uniform01(hash32(base ^ 0x68BC21EBu));

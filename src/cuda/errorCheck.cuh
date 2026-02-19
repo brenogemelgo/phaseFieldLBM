@@ -78,8 +78,7 @@ __host__ static inline void __getLastCudaError(
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess)
     {
-        fprintf(stderr, "CUDA error at %s(%d): [%d] %s. Context: %s\n",
-                file, line, (int)err, cudaGetErrorString(err), errorMessage);
+        fprintf(stderr, "CUDA error at %s(%d): [%d] %s. Context: %s\n", file, line, (int)err, cudaGetErrorString(err), errorMessage);
         fflush(stderr);
         std::abort();
     }

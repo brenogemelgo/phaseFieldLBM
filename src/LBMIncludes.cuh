@@ -133,8 +133,6 @@ namespace lbm
     // Boundary conditions
     __global__ void callInflow(LBMFields d, const label_t t);
     __global__ void callOutflow(LBMFields d);
-    __global__ void callPeriodicX(LBMFields d);
-    __global__ void callPeriodicY(LBMFields d);
 }
 
 #endif

@@ -266,6 +266,7 @@ namespace sponge
 
     __device__ __host__ [[nodiscard]] static inline consteval int sponge_cells() noexcept
     {
+        static_assert(mesh::nz >= 12, "Dimensions in Z too small for sponge! Disable or increase");
         return static_cast<int>(mesh::nz / 12);
     }
 

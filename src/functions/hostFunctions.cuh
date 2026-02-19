@@ -114,38 +114,6 @@ namespace host
                   << "-----------------------------------------------------------------------------\n\n";
     }
 
-    template <const size_t SIZE = size::cells()>
-    __host__ [[gnu::cold]] static inline void copyAndSaveToBinary(
-        const scalar_t *d_data,
-        const std::string &SIM_DIR,
-        const label_t STEP,
-        const std::string &VAR_NAME)
-    {
-        static thread_local std::vector<scalar_t> host_data;
-        if (host_data.size() != SIZE)
-        {
-            host_data.resize(SIZE);
-        }
-
-        checkCudaErrors(cudaMemcpy(host_data.data(), d_data, SIZE * sizeof(scalar_t), cudaMemcpyDeviceToHost));
-
-        std::ostringstream STEP_SAVE;
-        STEP_SAVE << std::setw(6) << std::setfill('0') << STEP;
-        const std::string filename = VAR_NAME + STEP_SAVE.str() + ".bin";
-        const std::filesystem::path OUT_PATH = std::filesystem::path(SIM_DIR) / filename;
-
-        std::ofstream file(OUT_PATH, std::ios::binary | std::ios::trunc);
-        if (!file)
-        {
-            std::cerr << "Error opening file " << OUT_PATH.string() << " for writing." << std::endl;
-
-            return;
-        }
-
-        file.write(reinterpret_cast<const char *>(host_data.data()), static_cast<std::streamsize>(host_data.size() * sizeof(scalar_t)));
-        file.close();
-    }
-
     __host__ [[nodiscard]] [[gnu::cold]] static inline int setDeviceFromEnv() noexcept
     {
         int dev = 0;

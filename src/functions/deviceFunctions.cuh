@@ -94,8 +94,10 @@ namespace device
     __device__ [[nodiscard]] static inline scalar_t sponge_ramp(const label_t z) noexcept
     {
         const scalar_t zn = static_cast<scalar_t>(z) * sponge::inv_nz_m1();
-        const scalar_t s = math::min(math::max((zn - sponge::z_start()) * sponge::inv_sponge(), static_cast<scalar_t>(0)), static_cast<scalar_t>(1));
-        return s * s * s;
+        scalar_t s = (zn - sponge::z_start()) * sponge::inv_sponge();
+        s = math::min(math::max(s, static_cast<scalar_t>(0)), static_cast<scalar_t>(1));
+        return s * s * (static_cast<scalar_t>(3) - static_cast<scalar_t>(2) * s); // cubic smoothstep
+        // return s * s * s * (static_cast<scalar_t>(10) + s * (-static_cast<scalar_t>(15) + 6 * s)); // quintic smoothstep
     }
 }
 

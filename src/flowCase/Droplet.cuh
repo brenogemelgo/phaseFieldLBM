@@ -57,7 +57,7 @@ namespace lbm
         __host__ static inline void boundaryConditions(
             const LBMFields &fields,
             const cudaStream_t queue,
-            const label_t STEP)
+            const label_t t)
         {
             // Full periodicity with wrap in streaming
         }

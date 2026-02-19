@@ -57,9 +57,9 @@ namespace lbm
         __host__ static inline void boundaryConditions(
             const LBMFields &fields,
             const cudaStream_t queue,
-            const label_t STEP)
+            const label_t t)
         {
-            callInflow<<<gridZ, blockZ, dynamic, queue>>>(fields, STEP);
+            callInflow<<<gridZ, blockZ, dynamic, queue>>>(fields, t);
             callOutflow<<<gridZ, blockZ, dynamic, queue>>>(fields);
         }
 
