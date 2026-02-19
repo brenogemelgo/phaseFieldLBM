@@ -30,9 +30,9 @@ namespace phase
 {
     __global__ void computePhase(LBMFields d)
     {
-        const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-        const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
-        const label_t z = threadIdx.z + blockIdx.z * blockDim.z;
+        const label_t x = threadIdx.x + block::nx() * blockIdx.x;
+        const label_t y = threadIdx.y + block::ny() * blockIdx.y;
+        const label_t z = threadIdx.z + block::nz() * blockIdx.z;
 
         if (device::guard(x, y, z))
         {
@@ -53,9 +53,9 @@ namespace phase
 
     __global__ void computeNormals(LBMFields d)
     {
-        const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-        const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
-        const label_t z = threadIdx.z + blockIdx.z * blockDim.z;
+        const label_t x = threadIdx.x + block::nx() * blockIdx.x;
+        const label_t y = threadIdx.y + block::ny() * blockIdx.y;
+        const label_t z = threadIdx.z + block::nz() * blockIdx.z;
 
         if (device::guard(x, y, z))
         {
@@ -141,9 +141,9 @@ namespace phase
 
     __global__ void computeForces(LBMFields d)
     {
-        const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-        const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
-        const label_t z = threadIdx.z + blockIdx.z * blockDim.z;
+        const label_t x = threadIdx.x + block::nx() * blockIdx.x;
+        const label_t y = threadIdx.y + block::ny() * blockIdx.y;
+        const label_t z = threadIdx.z + block::nz() * blockIdx.z;
 
         if (device::guard(x, y, z))
         {

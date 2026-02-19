@@ -32,9 +32,9 @@ namespace lbm
 {
     __global__ void computeMoments(LBMFields d)
     {
-        const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-        const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
-        const label_t z = threadIdx.z + blockIdx.z * blockDim.z;
+        const label_t x = threadIdx.x + block::nx() * blockIdx.x;
+        const label_t y = threadIdx.y + block::ny() * blockIdx.y;
+        const label_t z = threadIdx.z + block::nz() * blockIdx.z;
 
         if (device::guard(x, y, z))
         {
@@ -129,9 +129,9 @@ namespace lbm
 
     __global__ void streamCollide(LBMFields d)
     {
-        const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-        const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
-        const label_t z = threadIdx.z + blockIdx.z * blockDim.z;
+        const label_t x = threadIdx.x + block::nx() * blockIdx.x;
+        const label_t y = threadIdx.y + block::ny() * blockIdx.y;
+        const label_t z = threadIdx.z + block::nz() * blockIdx.z;
 
         if (device::guard(x, y, z))
         {

@@ -37,8 +37,8 @@ namespace lbm
             LBMFields d,
             const label_t t) noexcept
         {
-            const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-            const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
+            const label_t x = threadIdx.x + block::nx() * blockIdx.x;
+            const label_t y = threadIdx.y + block::ny() * blockIdx.y;
 
             if (x >= mesh::nx || y >= mesh::ny)
             {
@@ -106,8 +106,8 @@ namespace lbm
 
         __device__ static inline void applyOutflow(LBMFields d) noexcept
         {
-            const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-            const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
+            const label_t x = threadIdx.x + block::nx() * blockIdx.x;
+            const label_t y = threadIdx.y + block::ny() * blockIdx.y;
 
             if (x >= mesh::nx || y >= mesh::ny)
             {
