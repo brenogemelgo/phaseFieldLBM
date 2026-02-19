@@ -73,7 +73,9 @@ namespace lbm
             });
     }
 
-    __global__ void computeMoments(LBMFields d, const label_t STEP)
+    __global__ void momentsStreamCollide(
+        LBMFields d,
+        const label_t t)
     {
         const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
         const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -87,7 +89,19 @@ namespace lbm
         const label_t idx3 = device::global3(x, y, z);
 
         scalar_t pop[velocitySet::Q()];
-        esopull::load_f<velocitySet>(d, x, y, z, pop, STEP);
+        pop[0] = from_pop(d.f[0 * size::cells() + idx3]);
+        device::constexpr_for<0, (velocitySet::Q() - 1) / 2>(
+            [&](const auto K)
+            {
+                constexpr label_t i = static_cast<label_t>(2 * K + 1);
+
+                const label_t xx = x + static_cast<label_t>(velocitySet::cx<i>());
+                const label_t yy = y + static_cast<label_t>(velocitySet::cy<i>());
+                const label_t zz = z + static_cast<label_t>(velocitySet::cz<i>());
+
+                pop[i] = from_pop(d.f[((t & 1) ? i : (i + 1)) * size::cells() + idx3]);
+                pop[i + 1] = from_pop(d.f[((t & 1) ? (i + 1) : i) * size::cells() + device::global3(xx, yy, zz)]);
+            });
 
         scalar_t rho = static_cast<scalar_t>(0);
         device::constexpr_for<0, velocitySet::Q()>(
@@ -166,45 +180,16 @@ namespace lbm
         d.pxy[idx3] = pxy;
         d.pxz[idx3] = pxz;
         d.pyz[idx3] = pyz;
-    }
-
-    __global__ void streamCollide(LBMFields d, const label_t STEP)
-    {
-        const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-        const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
-        const label_t z = threadIdx.z + blockIdx.z * blockDim.z;
-
-        if (device::guard(x, y, z))
-        {
-            return;
-        }
-
-        const label_t idx3 = device::global3(x, y, z);
-
-        const scalar_t rho = d.rho[idx3];
-        const scalar_t ux = d.ux[idx3];
-        const scalar_t uy = d.uy[idx3];
-        const scalar_t uz = d.uz[idx3];
-        const scalar_t pxx = d.pxx[idx3];
-        const scalar_t pyy = d.pyy[idx3];
-        const scalar_t pzz = d.pzz[idx3];
-        const scalar_t pxy = d.pxy[idx3];
-        const scalar_t pxz = d.pxz[idx3];
-        const scalar_t pyz = d.pyz[idx3];
-        const scalar_t fsx = d.fsx[idx3];
-        const scalar_t fsy = d.fsy[idx3];
-        const scalar_t fsz = d.fsz[idx3];
 
         const scalar_t phi = d.phi[idx3];
         scalar_t omega = static_cast<scalar_t>(0);
 
         if constexpr (flowCase::jet_case())
         {
-            // const scalar_t tau_phi = (static_cast<scalar_t>(1) - phi) * relaxation::tau_water() + phi * relaxation::tau_oil();
-            // const scalar_t r = device::sponge_ramp(z);
-            // const scalar_t tau_eff = tau_phi + r * (relaxation::tau_zmax(phi) - tau_phi);
-            // omega = static_cast<scalar_t>(1) / tau_eff;
-            omega = relaxation::omega_ref();
+            const scalar_t tau_phi = (static_cast<scalar_t>(1) - phi) * relaxation::tau_water() + phi * relaxation::tau_oil();
+            const scalar_t r = device::sponge_ramp(z);
+            const scalar_t tau_eff = tau_phi + r * (relaxation::tau_zmax(phi) - tau_phi);
+            omega = static_cast<scalar_t>(1) / tau_eff;
         }
         else
         {
@@ -212,10 +197,8 @@ namespace lbm
         }
 
         const scalar_t omco = static_cast<scalar_t>(1) - omega;
-        const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
 
-        scalar_t post[velocitySet::Q()];
-
+        scalar_t f_post[velocitySet::Q()];
         device::constexpr_for<0, velocitySet::Q()>(
             [&](const auto Q)
             {
@@ -224,28 +207,55 @@ namespace lbm
                 constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
 
                 const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
+
                 const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
                 const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, fsx, fsy, fsz);
                 const scalar_t fneq = velocitySet::f_neq<Q>(pxx, pyy, pzz, pxy, pxz, pyz, ux, uy, uz);
 
-                post[Q] = feq + omco * fneq + static_cast<scalar_t>(0.5) * force;
+                f_post[Q] = feq + omco * fneq + static_cast<scalar_t>(0.5) * force;
             });
 
-        esopull::store_f<velocitySet>(d, x, y, z, post, STEP);
+        d.f[0 * size::cells() + idx3] = to_pop(f_post[0]);
+        device::constexpr_for<0, (velocitySet::Q() - 1) / 2>(
+            [&](const auto K)
+            {
+                constexpr label_t i = static_cast<label_t>(2 * K + 1);
+
+                const label_t xx = x + static_cast<label_t>(velocitySet::cx<i>());
+                const label_t yy = y + static_cast<label_t>(velocitySet::cy<i>());
+                const label_t zz = z + static_cast<label_t>(velocitySet::cz<i>());
+
+                d.f[((t & 1) ? (i + 1) : i) * size::cells() + device::global3(xx, yy, zz)] = to_pop(f_post[i]);
+                d.f[((t & 1) ? i : (i + 1)) * size::cells() + idx3] = to_pop(f_post[i + 1]);
+            });
 
         const scalar_t normx = d.normx[idx3];
         const scalar_t normy = d.normy[idx3];
         const scalar_t normz = d.normz[idx3];
         const scalar_t sharp = physics::gamma * phi * (static_cast<scalar_t>(1) - phi);
 
-        scalar_t gpost[phase::velocitySet::Q()];
-
+        scalar_t g_post[phase::velocitySet::Q()];
         device::constexpr_for<0, phase::velocitySet::Q()>(
             [&](auto Q)
             {
                 const scalar_t geq = phase::velocitySet::g_eq<Q>(phi, ux, uy, uz);
                 const scalar_t hi = phase::velocitySet::anti_diffusion<Q>(sharp, normx, normy, normz);
-                gpost[Q] = geq + hi;
+
+                g_post[Q] = geq + hi;
+            });
+
+        d.g[0 * size::cells() + idx3] = g_post[0];
+        device::constexpr_for<0, (phase::velocitySet::Q() - 1) / 2>(
+            [&](const auto K)
+            {
+                constexpr label_t i = static_cast<label_t>(2 * K + 1);
+
+                const label_t xx = x + static_cast<label_t>(phase::velocitySet::cx<i>());
+                const label_t yy = y + static_cast<label_t>(phase::velocitySet::cy<i>());
+                const label_t zz = z + static_cast<label_t>(phase::velocitySet::cz<i>());
+
+                d.g[((t & 1) ? (i + 1) : i) * size::cells() + device::global3(xx, yy, zz)] = g_post[i];
+                d.g[((t & 1) ? i : (i + 1)) * size::cells() + idx3] = g_post[i + 1];
             });
     }
 
@@ -254,20 +264,19 @@ namespace lbm
         BoundaryConditions::applyInflow(d, t);
     }
 
-    __global__ void callOutflow(LBMFields d)
+    __global__ void callOutflow(LBMFields d, const label_t t)
     {
-        // BoundaryConditions::applyOutflow(d);
-        // BoundaryConditions::applyConvectiveOutflow(d);
+        BoundaryConditions::applyOutflow(d, t);
     }
 
-    __global__ void callPeriodicX(LBMFields d)
+    __global__ void callPeriodicX(LBMFields d, const label_t t)
     {
-        // BoundaryConditions::periodicX(d);
+        BoundaryConditions::periodicX(d, t);
     }
 
-    __global__ void callPeriodicY(LBMFields d)
+    __global__ void callPeriodicY(LBMFields d, const label_t t)
     {
-        // BoundaryConditions::periodicY(d);
+        BoundaryConditions::periodicY(d, t);
     }
 }
 

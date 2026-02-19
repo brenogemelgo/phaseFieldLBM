@@ -84,7 +84,7 @@ namespace mesh
     static constexpr label_t res = 128;
     static constexpr label_t nx = res;
     static constexpr label_t ny = res;
-    static constexpr label_t nz = res * 2;
+    static constexpr label_t nz = res;
     static constexpr int diam = 20;
     static constexpr int radius = diam / 2;
 }

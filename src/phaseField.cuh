@@ -66,7 +66,7 @@ namespace phase
             });
     }
 
-    __global__ void computePhase(LBMFields d, const label_t STEP)
+    __global__ void computePhase(LBMFields d, const label_t t)
     {
         const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
         const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -79,11 +79,11 @@ namespace phase
 
         const label_t idx3 = device::global3(x, y, z);
 
-        scalar_t gpop[velocitySet::Q()];
-        phase::esopull::load_g<velocitySet>(d, x, y, z, gpop, STEP);
+        scalar_t gpop[phase::velocitySet::Q()];
+        phase::esopull::load_g<phase::velocitySet>(d, x, y, z, gpop, t);
 
         scalar_t phi = static_cast<scalar_t>(0);
-        device::constexpr_for<0, velocitySet::Q()>(
+        device::constexpr_for<0, phase::velocitySet::Q()>(
             [&](const auto Q)
             {
                 phi += gpop[Q];

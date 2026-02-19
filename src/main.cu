@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 
     // Base fields (always saved)
     static constexpr auto BASE_FIELDS = std::to_array<host::FieldConfig>({
-        {host::FieldID::Rho, "rho", host::FieldDumpShape::Grid3D, true},
+        {host::FieldID::Phi, "phi", host::FieldDumpShape::Grid3D, true},
         {host::FieldID::Uz, "uz", host::FieldDumpShape::Grid3D, true},
     });
 
@@ -165,8 +165,7 @@ int main(int argc, char *argv[])
         phase::computeForces<<<grid3D, block3D, dynamic, queue>>>(fields);
 
         // Hydrodynamics
-        lbm::computeMoments<<<grid3D, block3D, dynamic, queue>>>(fields, STEP);
-        lbm::streamCollide<<<grid3D, block3D, dynamic, queue>>>(fields, STEP);
+        lbm::momentsStreamCollide<<<grid3D, block3D, dynamic, queue>>>(fields, STEP);
 
         // Flow case specific boundary conditions
         lbm::flowCase::boundaryConditions<gridX, blockX, gridY, blockY, gridZ, blockZ, dynamic>(fields, queue, STEP);

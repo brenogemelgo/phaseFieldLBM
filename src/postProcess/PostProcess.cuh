@@ -44,12 +44,12 @@ namespace host
         __host__ bool bin(
             const Container &fieldsCfg,
             const std::string &SIM_DIR,
-            const label_t STEP,
+            const label_t t,
             const LBMFields &fields) const
         {
             bool ok = true;
 
-            const std::string stepSuffix = stepSuffix6(STEP);
+            const std::string stepSuffix = stepSuffix6(t);
 
             for (const auto &cfg : fieldsCfg)
             {
@@ -100,7 +100,7 @@ namespace host
         __host__ bool vti(
             const Container &fieldsCfg,
             const std::string &SIM_DIR,
-            const label_t STEP) const
+            const label_t t) const
         {
             struct ArrayDesc
             {
@@ -117,7 +117,7 @@ namespace host
             const std::uint64_t NNODES = NX * NY * NZ;
             const std::uint64_t nodeBytes = NNODES * static_cast<std::uint64_t>(sizeof(scalar_t));
 
-            const std::string stepSuffix = stepSuffix6(STEP);
+            const std::string stepSuffix = stepSuffix6(t);
 
             const std::filesystem::path vtiPath = std::filesystem::path(SIM_DIR) / ("step_" + stepSuffix + ".vti");
 
@@ -174,7 +174,7 @@ namespace host
 
             if (arrays.empty())
             {
-                std::cerr << "PostProcess::vti: no valid Grid3D bins found for step " << STEP << ". Not writing VTI.\n";
+                std::cerr << "PostProcess::vti: no valid Grid3D bins found for step " << t << ". Not writing VTI.\n";
 
                 return false;
             }
@@ -263,10 +263,10 @@ namespace host
     private:
         bool verbose_ = true;
 
-        __host__ static inline std::string stepSuffix6(const label_t STEP)
+        __host__ static inline std::string stepSuffix6(const label_t t)
         {
             std::ostringstream ss;
-            ss << std::setw(6) << std::setfill('0') << STEP;
+            ss << std::setw(6) << std::setfill('0') << t;
             return ss.str();
         }
 

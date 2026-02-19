@@ -49,63 +49,66 @@ namespace lbm
             const scalar_t dy = static_cast<scalar_t>(y) - geometry::center_y();
             const scalar_t r2 = dx * dx + dy * dy;
 
-            if (r2 > geometry::R2())
+            if (r2 <= geometry::R2())
             {
-                return;
+                const label_t idx3_bnd = device::global3(x, y, 0);
+
+                constexpr scalar_t sigma_u = static_cast<scalar_t>(0.08) * physics::u_inf;
+
+                const scalar_t zx = white_noise<0xA341316Cu>(x, y, t);
+                const scalar_t zy = white_noise<0xC8013EA4u>(x, y, t);
+
+                const scalar_t rho = static_cast<scalar_t>(1);
+                const scalar_t phi = static_cast<scalar_t>(1);
+                const scalar_t ux = sigma_u * zx;
+                const scalar_t uy = sigma_u * zy;
+                const scalar_t uz = physics::u_inf;
+
+                d.rho[idx3_bnd] = rho;
+                d.phi[idx3_bnd] = phi;
+                d.ux[idx3_bnd] = ux;
+                d.uy[idx3_bnd] = uy;
+                d.uz[idx3_bnd] = uz;
+
+                const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
+
+                device::constexpr_for<0, velocitySet::Q()>(
+                    [&](const auto Q)
+                    {
+                        if constexpr (velocitySet::cz<Q>() == 1)
+                        {
+                            const int xx = static_cast<int>(x) + velocitySet::cx<Q>();
+                            const int yy = static_cast<int>(y) + velocitySet::cy<Q>();
+
+                            const label_t fluidNode = device::global3(xx, yy, 1);
+
+                            constexpr scalar_t cx = static_cast<scalar_t>(velocitySet::cx<Q>());
+                            constexpr scalar_t cy = static_cast<scalar_t>(velocitySet::cy<Q>());
+                            constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
+
+                            const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
+
+                            const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
+                            const scalar_t fneq = velocitySet::f_neq<Q>(d.pxx[fluidNode], d.pyy[fluidNode], d.pzz[fluidNode],
+                                                                        d.pxy[fluidNode], d.pxz[fluidNode], d.pyz[fluidNode],
+                                                                        d.ux[fluidNode], d.uy[fluidNode], d.uz[fluidNode]);
+
+                            const scalar_t val = feq + relaxation::omco_zmin() * fneq;
+                            esopull::store_phys<velocitySet, Q>(d, xx, yy, 1, val, t + 1);
+                        }
+                    });
             }
 
-            const label_t idx3_bnd = device::global3(x, y, 0);
-            const label_t idx3_zp1 = device::global3(x, y, 1);
+            const scalar_t phi = (r2 <= geometry::R2()) ? static_cast<scalar_t>(1) : static_cast<scalar_t>(0);
+            const scalar_t uz = (r2 <= geometry::R2()) ? physics::u_inf : static_cast<scalar_t>(0);
 
-            constexpr scalar_t sigma_u = static_cast<scalar_t>(0.08) * physics::u_inf;
-
-            const scalar_t zx = white_noise<0xA341316Cu>(x, y, t);
-            const scalar_t zy = white_noise<0xC8013EA4u>(x, y, t);
-
-            const scalar_t rho = static_cast<scalar_t>(1);
-            const scalar_t phi = static_cast<scalar_t>(1);
-            const scalar_t ux = sigma_u * zx;
-            const scalar_t uy = sigma_u * zy;
-            const scalar_t uz = physics::u_inf;
-
-            d.rho[idx3_bnd] = rho;
-            d.phi[idx3_bnd] = phi;
-            d.ux[idx3_bnd] = ux;
-            d.uy[idx3_bnd] = uy;
-            d.uz[idx3_bnd] = uz;
-
-            const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
-
-            device::constexpr_for<0, velocitySet::Q()>(
-                [&](const auto Q)
-                {
-                    if constexpr (velocitySet::cz<Q>() == 1)
-                    {
-                        const int xx = static_cast<int>(x) + velocitySet::cx<Q>();
-                        const int yy = static_cast<int>(y) + velocitySet::cy<Q>();
-
-                        const label_t fluidNode = device::global3(xx, yy, 1);
-
-                        constexpr scalar_t w = velocitySet::w<Q>();
-                        constexpr scalar_t cx = static_cast<scalar_t>(velocitySet::cx<Q>());
-                        constexpr scalar_t cy = static_cast<scalar_t>(velocitySet::cy<Q>());
-                        constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
-
-                        const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
-
-                        const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
-                        const scalar_t fneq = velocitySet::f_neq<Q>(d.pxx[fluidNode], d.pyy[fluidNode], d.pzz[fluidNode],
-                                                                    d.pxy[fluidNode], d.pxz[fluidNode], d.pyz[fluidNode],
-                                                                    d.ux[fluidNode], d.uy[fluidNode], d.uz[fluidNode]);
-
-                        esopull::store_phys<velocitySet, Q>(d, xx, yy, 1, feq + relaxation::omco_zmin() * fneq, t + 1);
-                    }
-                });
-
-            d.g[5 * size::cells() + idx3_zp1] = phase::velocitySet::w<5>() * phi * (static_cast<scalar_t>(1) + phase::velocitySet::as2() * uz);
+            const scalar_t val = phase::velocitySet::w<5>() * phi * (static_cast<scalar_t>(1) + phase::velocitySet::as2() * uz);
+            phase::esopull::store_phys<phase::velocitySet, 5>(d, x, y, 1, val, t + 1);
         }
 
-        __device__ static inline void applyOutflow(LBMFields d) noexcept
+        __device__ static inline void applyOutflow(
+            LBMFields d,
+            const label_t t) noexcept
         {
             const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
             const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -147,7 +150,6 @@ namespace lbm
 
                         const label_t fluidNode = device::global3(xx, yy, mesh::nz - 2);
 
-                        constexpr scalar_t w = velocitySet::w<Q>();
                         constexpr scalar_t cx = static_cast<scalar_t>(velocitySet::cx<Q>());
                         constexpr scalar_t cy = static_cast<scalar_t>(velocitySet::cy<Q>());
                         constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
@@ -160,102 +162,18 @@ namespace lbm
                                                                     d.ux[fluidNode], d.uy[fluidNode], d.uz[fluidNode]);
                         const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, d.fsx[fluidNode], d.fsy[fluidNode], d.fsz[fluidNode]);
 
-                        d.f[Q * size::cells() + fluidNode] = to_pop(feq + relaxation::omco_ref() * fneq + static_cast<scalar_t>(0.5) * force);
+                        const scalar_t val = feq + relaxation::omco_zmax(phi) * fneq + static_cast<scalar_t>(0.5) * force;
+                        esopull::store_phys<velocitySet, Q>(d, xx, yy, mesh::nz - 2, val, t + 1);
                     }
                 });
 
-            d.g[6 * size::cells() + idx3_zm1] = phase::velocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - phase::velocitySet::as2() * uz);
+            const scalar_t val = phase::velocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - phase::velocitySet::as2() * uz);
+            phase::esopull::store_phys<phase::velocitySet, 6>(d, x, y, mesh::nz - 2, val, t + 1);
         }
 
-        __device__ static inline void applyConvectiveOutflow(LBMFields d) noexcept
-        {
-            const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
-            const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
-
-            if (x >= mesh::nx || y >= mesh::ny)
-            {
-                return;
-            }
-
-            if (x == 0 || x >= mesh::nx - 1 || y == 0 || y >= mesh::ny - 1)
-            {
-                return;
-            }
-
-            const label_t idx3_bnd = device::global3(x, y, mesh::nz - 1);
-            const label_t idx3_zm1 = device::global3(x, y, mesh::nz - 2);
-
-            // Interior values
-            const scalar_t rho_zm1 = d.rho[idx3_zm1];
-            const scalar_t phi_zm1 = d.phi[idx3_zm1];
-            const scalar_t ux_zm1 = d.ux[idx3_zm1];
-            const scalar_t uy_zm1 = d.uy[idx3_zm1];
-            const scalar_t uz_zm1 = d.uz[idx3_zm1];
-
-            // Boundary values
-            scalar_t rho = d.rho[idx3_bnd];
-            scalar_t phi = d.phi[idx3_bnd];
-            scalar_t ux = d.ux[idx3_bnd];
-            scalar_t uy = d.uy[idx3_bnd];
-            scalar_t uz = d.uz[idx3_bnd];
-
-            const scalar_t Uc = uz_zm1;
-            const scalar_t alpha = math::clamp<static_cast<scalar_t>(0), static_cast<scalar_t>(1)>(Uc);
-
-            // Convective update
-            rho += alpha * (rho_zm1 - rho);
-            phi += alpha * (phi_zm1 - phi);
-            ux += alpha * (ux_zm1 - ux);
-            uy += alpha * (uy_zm1 - uy);
-            uz += alpha * (uz_zm1 - uz);
-
-            // Store updated boundary macros
-            d.rho[idx3_bnd] = rho;
-            d.phi[idx3_bnd] = phi;
-            d.ux[idx3_bnd] = ux;
-            d.uy[idx3_bnd] = uy;
-            d.uz[idx3_bnd] = uz;
-
-            const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
-
-            device::constexpr_for<0, velocitySet::Q()>(
-                [&](const auto Q)
-                {
-                    if constexpr (velocitySet::cz<Q>() == -1)
-                    {
-                        const int xx = static_cast<int>(x) + velocitySet::cx<Q>();
-                        const int yy = static_cast<int>(y) + velocitySet::cy<Q>();
-
-                        const label_t fluidNode = device::global3(xx, yy, mesh::nz - 2);
-
-                        constexpr scalar_t w = velocitySet::w<Q>();
-                        constexpr scalar_t cx = static_cast<scalar_t>(velocitySet::cx<Q>());
-                        constexpr scalar_t cy = static_cast<scalar_t>(velocitySet::cy<Q>());
-                        constexpr scalar_t cz = static_cast<scalar_t>(velocitySet::cz<Q>());
-
-                        const scalar_t cu = velocitySet::as2() * (cx * ux + cy * uy + cz * uz);
-
-                        const scalar_t feq = velocitySet::f_eq<Q>(rho, uu, cu);
-                        const scalar_t fneq = velocitySet::f_neq<Q>(d.pxx[fluidNode], d.pyy[fluidNode], d.pzz[fluidNode],
-                                                                    d.pxy[fluidNode], d.pxz[fluidNode], d.pyz[fluidNode],
-                                                                    d.ux[fluidNode], d.uy[fluidNode], d.uz[fluidNode]);
-
-                        d.f[Q * size::cells() + fluidNode] = to_pop(feq + relaxation::omco_ref() * fneq);
-                    }
-                });
-
-            d.g[6 * size::cells() + idx3_zm1] = phase::velocitySet::w<6>() * phi * (static_cast<scalar_t>(1) - phase::velocitySet::as2() * uz);
-
-            // =========== recompute rho locally ===========
-            // scalar_t rho_new = 0;
-            // for all Q : rho_new += from_pop(d.f[Q * size::cells() + idx3_zm1]);
-            // const scalar_t drho = rho_zm1 - rho_new;
-
-            // =========== redistribute correction isotropically ===========
-            // for all Q : d.f[Q * size::cells() + idx3_zm1] = to_pop(from_pop(d.f[...]) + velocitySet::w<Q>() * drho);
-        }
-
-        __device__ static inline void periodicX(LBMFields d)
+        __device__ static inline void periodicX(
+            LBMFields d,
+            const label_t t) noexcept
         {
             const label_t y = threadIdx.x + blockIdx.x * blockDim.x;
             const label_t z = threadIdx.y + blockIdx.y * blockDim.y;
@@ -265,19 +183,21 @@ namespace lbm
                 return;
             }
 
-            const label_t bL = device::global3(1, y, z);
-            const label_t bR = device::global3(mesh::nx - 2, y, z);
+            constexpr label_t xL = 1;
+            constexpr label_t xR = mesh::nx - 2;
 
             device::constexpr_for<0, velocitySet::Q()>(
                 [&](const auto Q)
                 {
                     if constexpr (velocitySet::cx<Q>() > 0)
                     {
-                        d.f[Q * size::cells() + bL] = d.f[Q * size::cells() + bR];
+                        const scalar_t val = esopull::load_phys<velocitySet, Q>(d, xR, y, z, t + 1);
+                        esopull::store_phys<velocitySet, Q>(d, xL, y, z, val, t + 1);
                     }
                     if constexpr (velocitySet::cx<Q>() < 0)
                     {
-                        d.f[Q * size::cells() + bR] = d.f[Q * size::cells() + bL];
+                        const scalar_t val = esopull::load_phys<velocitySet, Q>(d, xL, y, z, t + 1);
+                        esopull::store_phys<velocitySet, Q>(d, xR, y, z, val, t + 1);
                     }
                 });
 
@@ -286,15 +206,19 @@ namespace lbm
                 {
                     if constexpr (phase::velocitySet::cx<Q>() > 0)
                     {
-                        d.g[Q * size::cells() + bL] = d.g[Q * size::cells() + bR];
+                        const scalar_t val = phase::esopull::load_phys<phase::velocitySet, Q>(d, xR, y, z, t + 1);
+                        phase::esopull::store_phys<phase::velocitySet, Q>(d, xL, y, z, val, t + 1);
                     }
                     if constexpr (phase::velocitySet::cx<Q>() < 0)
                     {
-                        d.g[Q * size::cells() + bR] = d.g[Q * size::cells() + bL];
+                        const scalar_t val = phase::esopull::load_phys<phase::velocitySet, Q>(d, xL, y, z, t + 1);
+                        phase::esopull::store_phys<phase::velocitySet, Q>(d, xR, y, z, val, t + 1);
                     }
                 });
 
-            // Copy to ghost layer (periodic wrapping)
+            const label_t bL = device::global3(xL, y, z);
+            const label_t bR = device::global3(xR, y, z);
+
             const label_t gL = device::global3(0, y, z);
             const label_t gR = device::global3(mesh::nx - 1, y, z);
 
@@ -311,7 +235,9 @@ namespace lbm
             d.uz[gR] = d.uz[bL];
         }
 
-        __device__ static inline void periodicY(LBMFields d)
+        __device__ static inline void periodicY(
+            LBMFields d,
+            const label_t t) noexcept
         {
             const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
             const label_t z = threadIdx.y + blockIdx.y * blockDim.y;
@@ -321,19 +247,21 @@ namespace lbm
                 return;
             }
 
-            const label_t bB = device::global3(x, 1, z);
-            const label_t bT = device::global3(x, mesh::ny - 2, z);
+            constexpr label_t yB = 1;
+            constexpr label_t yT = mesh::ny - 2;
 
             device::constexpr_for<0, velocitySet::Q()>(
                 [&](const auto Q)
                 {
                     if constexpr (velocitySet::cy<Q>() > 0)
                     {
-                        d.f[Q * size::cells() + bB] = d.f[Q * size::cells() + bT];
+                        const scalar_t val = esopull::load_phys<velocitySet, Q>(d, x, yT, z, t + 1);
+                        esopull::store_phys<velocitySet, Q>(d, x, yB, z, val, t + 1);
                     }
                     if constexpr (velocitySet::cy<Q>() < 0)
                     {
-                        d.f[Q * size::cells() + bT] = d.f[Q * size::cells() + bB];
+                        const scalar_t val = esopull::load_phys<velocitySet, Q>(d, x, yB, z, t + 1);
+                        esopull::store_phys<velocitySet, Q>(d, x, yT, z, val, t + 1);
                     }
                 });
 
@@ -342,15 +270,19 @@ namespace lbm
                 {
                     if constexpr (phase::velocitySet::cy<Q>() > 0)
                     {
-                        d.g[Q * size::cells() + bB] = d.g[Q * size::cells() + bT];
+                        const scalar_t val = phase::esopull::load_phys<phase::velocitySet, Q>(d, x, yT, z, t + 1);
+                        phase::esopull::store_phys<phase::velocitySet, Q>(d, x, yB, z, val, t + 1);
                     }
                     if constexpr (phase::velocitySet::cy<Q>() < 0)
                     {
-                        d.g[Q * size::cells() + bT] = d.g[Q * size::cells() + bB];
+                        const scalar_t val = phase::esopull::load_phys<phase::velocitySet, Q>(d, x, yB, z, t + 1);
+                        phase::esopull::store_phys<phase::velocitySet, Q>(d, x, yT, z, val, t + 1);
                     }
                 });
 
-            // Copy to ghost layer (periodic wrapping)
+            const label_t bB = device::global3(x, yB, z);
+            const label_t bT = device::global3(x, yT, z);
+
             const label_t gB = device::global3(x, 0, z);
             const label_t gT = device::global3(x, mesh::ny - 1, z);
 
@@ -401,9 +333,9 @@ namespace lbm
         __device__ [[nodiscard]] static inline constexpr scalar_t white_noise(
             const label_t x,
             const label_t y,
-            const label_t STEP) noexcept
+            const label_t t) noexcept
         {
-            const uint32_t base = (0x9E3779B9u ^ SALT) ^ static_cast<uint32_t>(x) ^ (static_cast<uint32_t>(y) * 0x85EBCA6Bu) ^ (static_cast<uint32_t>(STEP) * 0xC2B2AE35u);
+            const uint32_t base = (0x9E3779B9u ^ SALT) ^ static_cast<uint32_t>(x) ^ (static_cast<uint32_t>(y) * 0x85EBCA6Bu) ^ (static_cast<uint32_t>(t) * 0xC2B2AE35u);
 
             const scalar_t rrx = uniform01(hash32(base));
             const scalar_t rry = uniform01(hash32(base ^ 0x68BC21EBu));

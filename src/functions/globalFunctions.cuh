@@ -39,17 +39,17 @@ namespace block
 {
     __device__ __host__ [[nodiscard]] static inline consteval label_t nx() noexcept
     {
-        return 8;
+        return 32;
     }
 
     __device__ __host__ [[nodiscard]] static inline consteval label_t ny() noexcept
     {
-        return 8;
+        return 4;
     }
 
     __device__ __host__ [[nodiscard]] static inline consteval label_t nz() noexcept
     {
-        return 8;
+        return 4;
     }
 
     __device__ __host__ [[nodiscard]] static inline consteval label_t num_x() noexcept
