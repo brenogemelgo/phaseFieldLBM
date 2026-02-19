@@ -61,8 +61,6 @@ namespace lbm
         {
             callInflow<<<gridZ, blockZ, dynamic, queue>>>(fields, STEP);
             callOutflow<<<gridZ, blockZ, dynamic, queue>>>(fields);
-            callPeriodicX<<<gridX, blockX, dynamic, queue>>>(fields);
-            callPeriodicY<<<gridY, blockY, dynamic, queue>>>(fields);
         }
 
     private:

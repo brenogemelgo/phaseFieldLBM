@@ -36,7 +36,7 @@ All benchmarks are performed in **FP32 precision**.
 
 | GPU             | D3Q19 (MLUPS) | D3Q27 (MLUPS) |
 |-----------------|---------------|---------------|
-| RTX 3050 (4GB)  | 440           | 377           |
+| RTX 3050 (4GB)  | 470           | 410           |
 | RTX 4090 (24GB) | –             | –             |
 | A100 (40GB)     | –             | –             |
 

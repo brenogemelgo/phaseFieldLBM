@@ -53,7 +53,7 @@ namespace lbm
             setDroplet<<<grid, block, dynamic, queue>>>(fields);
         }
 
-        template <dim3 grid, dim3 block, size_t dynamic>
+        template <dim3 gridX, dim3 blockX, dim3 gridY, dim3 blockY, dim3 gridZ, dim3 blockZ, size_t dynamic>
         __host__ static inline void boundaryConditions(
             const LBMFields &fields,
             const cudaStream_t queue,

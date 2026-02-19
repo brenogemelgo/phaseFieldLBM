@@ -192,7 +192,12 @@ namespace lbm
                 label_t zz = z + static_cast<label_t>(velocitySet::cz<Q>());
 
                 // Periodic wrapping
-                if constexpr (flowCase::droplet_case())
+                if constexpr (flowCase::jet_case())
+                {
+                    xx = device::periodic_wrap<mesh::nx>(xx);
+                    yy = device::periodic_wrap<mesh::ny>(yy);
+                }
+                else if constexpr (flowCase::droplet_case())
                 {
                     xx = device::periodic_wrap<mesh::nx>(xx);
                     yy = device::periodic_wrap<mesh::ny>(yy);
@@ -218,7 +223,12 @@ namespace lbm
                 label_t zz = z + static_cast<label_t>(phase::velocitySet::cz<Q>());
 
                 // Periodic wrapping
-                if constexpr (flowCase::droplet_case())
+                if constexpr (flowCase::jet_case())
+                {
+                    xx = device::periodic_wrap<mesh::nx>(xx);
+                    yy = device::periodic_wrap<mesh::ny>(yy);
+                }
+                else if constexpr (flowCase::droplet_case())
                 {
                     xx = device::periodic_wrap<mesh::nx>(xx);
                     yy = device::periodic_wrap<mesh::ny>(yy);
@@ -237,17 +247,6 @@ namespace lbm
     __global__ void callOutflow(LBMFields d)
     {
         BoundaryConditions::applyOutflow(d);
-        // BoundaryConditions::applyConvectiveOutflow(d);
-    }
-
-    __global__ void callPeriodicX(LBMFields d)
-    {
-        BoundaryConditions::periodicX(d);
-    }
-
-    __global__ void callPeriodicY(LBMFields d)
-    {
-        BoundaryConditions::periodicY(d);
     }
 }
 
