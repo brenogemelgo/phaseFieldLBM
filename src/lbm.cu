@@ -159,11 +159,10 @@ namespace lbm
 
         if constexpr (flowCase::jet_case())
         {
-            // const scalar_t tau_phi = (static_cast<scalar_t>(1) - phi) * relaxation::tau_water() + phi * relaxation::tau_oil();
-            // const scalar_t r = device::sponge_ramp(z);
-            // const scalar_t tau_eff = tau_phi + r * (relaxation::tau_zmax(phi) - tau_phi);
-            // omega = static_cast<scalar_t>(1) / tau_eff;
-            omega = relaxation::omega_ref();
+            const scalar_t tau_phi = (static_cast<scalar_t>(1) - phi) * relaxation::tau_water() + phi * relaxation::tau_oil();
+            const scalar_t r = device::sponge_ramp(z);
+            const scalar_t tau_eff = tau_phi + r * (relaxation::tau_zmax(phi) - tau_phi);
+            omega = static_cast<scalar_t>(1) / tau_eff;
         }
         else
         {

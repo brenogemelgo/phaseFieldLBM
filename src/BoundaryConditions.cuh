@@ -122,66 +122,17 @@ namespace lbm
             const label_t idx3_bnd = device::global3(x, y, mesh::nz - 1);
             const label_t idx3_zm1 = device::global3(x, y, mesh::nz - 2);
 
-            // ----------------------------
-            // Dong OBC: use stored boundary macros as u^n (no extra arrays)
-            // ----------------------------
-            const scalar_t ux_old = d.ux[idx3_bnd];
-            const scalar_t uy_old = d.uy[idx3_bnd];
-            const scalar_t uz_old = d.uz[idx3_bnd];
-
-            // Keep your existing "copy scalars from interior" behavior
             d.rho[idx3_bnd] = d.rho[idx3_zm1];
             d.phi[idx3_bnd] = d.phi[idx3_zm1];
+            d.ux[idx3_bnd] = d.ux[idx3_zm1];
+            d.uy[idx3_bnd] = d.uy[idx3_zm1];
+            d.uz[idx3_bnd] = d.uz[idx3_zm1];
 
             const scalar_t rho = d.rho[idx3_bnd];
             const scalar_t phi = d.phi[idx3_bnd];
-
-            // Interior velocity
-            const scalar_t ux_i = d.ux[idx3_zm1];
-            const scalar_t uy_i = d.uy[idx3_zm1];
-            const scalar_t uz_i = d.uz[idx3_zm1];
-
-            // Default: passive outflow (do not "actuate" the domain)
-            scalar_t ux = ux_i;
-            scalar_t uy = uy_i;
-            scalar_t uz = uz_i;
-
-            // Backflow detection: n = +ez, so un = uz
-            const scalar_t un_i = uz_i;
-
-            if (un_i < static_cast<scalar_t>(0))
-            {
-                // Viscosity in lattice units from BGK relaxation
-                constexpr scalar_t nu = velocitySet::cs2() * (static_cast<scalar_t>(1) / (static_cast<scalar_t>(1) - relaxation::omco_ref()) - static_cast<scalar_t>(0.5));
-
-                // Convection speed scale Uc = 1/D0 (no reductions => default to u_inf)
-                const scalar_t U0 = physics::u_inf;
-                const scalar_t Uc = physics::u_inf;
-                const scalar_t D0 = static_cast<scalar_t>(1) / Uc;
-
-                // Theta_0(n,u): use boundary-stored u^n for the smooth switch
-                constexpr scalar_t delta = static_cast<scalar_t>(0.1);
-                const scalar_t un = uz_old;
-                const scalar_t Theta = static_cast<scalar_t>(0.5) * (static_cast<scalar_t>(1) - tanh(un / (delta * U0)));
-
-                // E(n,u*) with u* = u^n_b
-                const scalar_t u2 = ux_old * ux_old + uy_old * uy_old + uz_old * uz_old;
-                const scalar_t Ex = static_cast<scalar_t>(0.5) * (un * ux_old) * Theta;
-                const scalar_t Ey = static_cast<scalar_t>(0.5) * (un * uy_old) * Theta;
-                const scalar_t Ez = static_cast<scalar_t>(0.5) * (u2 + un * un) * Theta;
-
-                // (nu(D0+1)) u_b^{n+1} = nu D0 u_b^n + nu u_i + E
-                const scalar_t denom = nu * (D0 + static_cast<scalar_t>(1));
-
-                ux = (nu * D0 * ux_old + nu * ux_i + Ex) / denom;
-                uy = (nu * D0 * uy_old + nu * uy_i + Ey) / denom;
-                uz = (nu * D0 * uz_old + nu * uz_i + Ez) / denom;
-            }
-
-            // Store boundary macros (used as u^n next step)
-            d.ux[idx3_bnd] = ux;
-            d.uy[idx3_bnd] = uy;
-            d.uz[idx3_bnd] = uz;
+            const scalar_t ux = d.ux[idx3_bnd];
+            const scalar_t uy = d.uy[idx3_bnd];
+            const scalar_t uz = d.uz[idx3_bnd];
 
             const scalar_t uu = static_cast<scalar_t>(1.5) * (ux * ux + uy * uy + uz * uz);
 
@@ -190,11 +141,11 @@ namespace lbm
                 {
                     if constexpr (velocitySet::cz<Q>() == -1)
                     {
-                        int xx = static_cast<int>(x) + velocitySet::cx<Q>();
-                        int yy = static_cast<int>(y) + velocitySet::cy<Q>();
+                        const int xi = static_cast<int>(x) + velocitySet::cx<Q>();
+                        const int yi = static_cast<int>(y) + velocitySet::cy<Q>();
 
-                        xx = device::periodic_wrap<mesh::nx>(xx);
-                        yy = device::periodic_wrap<mesh::ny>(yy);
+                        const label_t xx = device::periodic_wrap<mesh::nx>(static_cast<label_t>(xi));
+                        const label_t yy = device::periodic_wrap<mesh::ny>(static_cast<label_t>(yi));
 
                         const label_t fluidNode = device::global3(xx, yy, mesh::nz - 2);
 
@@ -210,7 +161,7 @@ namespace lbm
                                                                     d.ux[fluidNode], d.uy[fluidNode], d.uz[fluidNode]);
                         const scalar_t force = velocitySet::force<Q>(cu, ux, uy, uz, d.fsx[fluidNode], d.fsy[fluidNode], d.fsz[fluidNode]);
 
-                        d.f[Q * size::cells() + fluidNode] = to_pop(feq + relaxation::omco_ref() * fneq + static_cast<scalar_t>(0.5) * force);
+                        d.f[Q * size::cells() + fluidNode] = to_pop(feq + relaxation::omco_zmax(phi) * fneq + static_cast<scalar_t>(0.5) * force);
                     }
                 });
 
