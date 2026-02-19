@@ -238,25 +238,14 @@ namespace lbm
         const scalar_t normz = d.normz[idx3];
         const scalar_t sharp = physics::gamma * phi * (static_cast<scalar_t>(1) - phi);
 
+        scalar_t gpost[phase::velocitySet::Q()];
+
         device::constexpr_for<0, phase::velocitySet::Q()>(
-            [&](const auto Q)
+            [&](auto Q)
             {
                 const scalar_t geq = phase::velocitySet::g_eq<Q>(phi, ux, uy, uz);
                 const scalar_t hi = phase::velocitySet::anti_diffusion<Q>(sharp, normx, normy, normz);
-
-                label_t xx = x + static_cast<label_t>(phase::velocitySet::cx<Q>());
-                label_t yy = y + static_cast<label_t>(phase::velocitySet::cy<Q>());
-                label_t zz = z + static_cast<label_t>(phase::velocitySet::cz<Q>());
-
-                // Periodic wrapping
-                if constexpr (flowCase::droplet_case())
-                {
-                    xx = device::periodic_wrap<mesh::nx>(xx);
-                    yy = device::periodic_wrap<mesh::ny>(yy);
-                    zz = device::periodic_wrap<mesh::nz>(zz);
-                }
-
-                d.g[device::global4(xx, yy, zz, Q)] = geq + hi;
+                gpost[Q] = geq + hi;
             });
     }
 

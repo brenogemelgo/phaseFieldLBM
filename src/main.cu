@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
     lbm::setDistros<<<grid3D, block3D, dynamic, queue>>>(fields);
 
     lbm::encodeStandardToEsoteric_t0<lbm::velocitySet><<<grid3D, block3D, dynamic, queue>>>(fields);
+    phase::encodeStandardToEsoteric_t0_g<phase::velocitySet><<<grid3D, block3D, dynamic, queue>>>(fields);
 
     // Make sure everything is initialized
     checkCudaErrorsOutline(cudaDeviceSynchronize());
@@ -159,7 +160,7 @@ int main(int argc, char *argv[])
     for (label_t STEP = 0; STEP <= NSTEPS; ++STEP)
     {
         // Phase field
-        phase::computePhase<<<grid3D, block3D, dynamic, queue>>>(fields);
+        phase::computePhase<<<grid3D, block3D, dynamic, queue>>>(fields, STEP);
         phase::computeNormals<<<grid3D, block3D, dynamic, queue>>>(fields);
         phase::computeForces<<<grid3D, block3D, dynamic, queue>>>(fields);
 

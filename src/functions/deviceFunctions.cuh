@@ -252,4 +252,145 @@ namespace lbm
     }
 }
 
+namespace phase
+{
+    namespace esopull
+    {
+        // g is stored as scalar_t (no to_pop/from_pop)
+        template <class VS>
+        __device__ inline void load_g(
+            const LBMFields &d,
+            const label_t x, const label_t y, const label_t z,
+            scalar_t *__restrict__ pop,
+            const label_t t) noexcept
+        {
+            const label_t n = device::global3(x, y, z);
+
+            pop[0] = d.g[0 * size::cells() + n];
+
+            const bool odd = (t & 1);
+
+            device::constexpr_for<0, (VS::Q() - 1) / 2>(
+                [&](auto K)
+                {
+                    constexpr label_t k = K.value;
+                    constexpr label_t i = static_cast<label_t>(2 * k + 1);
+
+                    const label_t xx = x + static_cast<label_t>(VS::template cx<i>());
+                    const label_t yy = y + static_cast<label_t>(VS::template cy<i>());
+                    const label_t zz = z + static_cast<label_t>(VS::template cz<i>());
+
+                    const label_t j = device::global3(xx, yy, zz);
+
+                    pop[i] = d.g[(odd ? i : (i + 1)) * size::cells() + n];
+                    pop[i + 1] = d.g[(odd ? (i + 1) : i) * size::cells() + j];
+                });
+        }
+
+        template <class VS>
+        __device__ inline void store_g(
+            LBMFields d,
+            const label_t x, const label_t y, const label_t z,
+            const scalar_t *__restrict__ post,
+            const label_t t) noexcept
+        {
+            const label_t n = device::global3(x, y, z);
+
+            d.g[0 * size::cells() + n] = post[0];
+
+            const bool odd = (t & 1);
+
+            device::constexpr_for<0, (VS::Q() - 1) / 2>(
+                [&](auto K)
+                {
+                    constexpr label_t k = K.value;
+                    constexpr label_t i = static_cast<label_t>(2 * k + 1);
+
+                    const label_t xx = x + static_cast<label_t>(VS::template cx<i>());
+                    const label_t yy = y + static_cast<label_t>(VS::template cy<i>());
+                    const label_t zz = z + static_cast<label_t>(VS::template cz<i>());
+
+                    const label_t j = device::global3(xx, yy, zz);
+
+                    d.g[(odd ? (i + 1) : i) * size::cells() + j] = post[i];
+                    d.g[(odd ? i : (i + 1)) * size::cells() + n] = post[i + 1];
+                });
+        }
+
+        // Optional (needed for BCs that set individual directions like Q=5/Q=6)
+        template <class VS, label_t Q>
+        __device__ inline scalar_t load_phys(
+            const LBMFields &d,
+            const label_t x, const label_t y, const label_t z,
+            const label_t t_phys) noexcept
+        {
+            if constexpr (Q == 0)
+            {
+                const label_t n = device::global3(x, y, z);
+                return d.g[0 * size::cells() + n];
+            }
+            else
+            {
+                constexpr label_t base = (Q & 1) ? Q : (Q - 1);
+                constexpr label_t opp = base + 1;
+                const bool odd = (t_phys & 1);
+
+                if constexpr (Q & 1)
+                {
+                    const label_t n = device::global3(x, y, z);
+                    const label_t dir = odd ? Q : (Q + 1);
+                    return d.g[dir * size::cells() + n];
+                }
+                else
+                {
+                    const label_t xx = x + static_cast<label_t>(VS::template cx<base>());
+                    const label_t yy = y + static_cast<label_t>(VS::template cy<base>());
+                    const label_t zz = z + static_cast<label_t>(VS::template cz<base>());
+                    const label_t j = device::global3(xx, yy, zz);
+
+                    const label_t dir = odd ? opp : base;
+                    return d.g[dir * size::cells() + j];
+                }
+            }
+        }
+
+        template <class VS, label_t Q>
+        __device__ inline void store_phys(
+            LBMFields d,
+            const label_t x, const label_t y, const label_t z,
+            const scalar_t val,
+            const label_t t_phys) noexcept
+        {
+            if constexpr (Q == 0)
+            {
+                const label_t n = device::global3(x, y, z);
+                d.g[0 * size::cells() + n] = val;
+            }
+            else
+            {
+                constexpr label_t base = (Q & 1) ? Q : (Q - 1);
+                constexpr label_t opp = base + 1;
+                const bool odd = (t_phys & 1);
+
+                if constexpr (Q & 1)
+                {
+                    const label_t n = device::global3(x, y, z);
+                    const label_t dir = odd ? Q : (Q + 1);
+                    d.g[dir * size::cells() + n] = val;
+                }
+                else
+                {
+                    const label_t xx = x + static_cast<label_t>(VS::template cx<base>());
+                    const label_t yy = y + static_cast<label_t>(VS::template cy<base>());
+                    const label_t zz = z + static_cast<label_t>(VS::template cz<base>());
+                    const label_t j = device::global3(xx, yy, zz);
+
+                    const label_t dir = odd ? opp : base;
+                    d.g[dir * size::cells() + j] = val;
+                }
+            }
+        }
+    }
+}
+
 #endif

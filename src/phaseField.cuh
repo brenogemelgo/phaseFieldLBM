@@ -28,7 +28,45 @@ SourceFiles
 
 namespace phase
 {
-    __global__ void computePhase(LBMFields d)
+    template <class VS>
+    __global__ void encodeStandardToEsoteric_t0_g(LBMFields d)
+    {
+        const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
+        const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
+        const label_t z = threadIdx.z + blockIdx.z * blockDim.z;
+
+        if (device::guard(x, y, z))
+            return;
+
+        const label_t n = device::global3(x, y, z);
+
+        scalar_t phys[VS::Q()];
+        device::constexpr_for<0, VS::Q()>(
+            [&](auto Q)
+            {
+                phys[Q] = d.g[Q * size::cells() + n];
+            });
+
+        // t=0 => odd=false
+        d.g[0 * size::cells() + n] = phys[0];
+
+        device::constexpr_for<0, (VS::Q() - 1) / 2>(
+            [&](auto K)
+            {
+                constexpr label_t k = K.value;
+                constexpr label_t i = static_cast<label_t>(2 * k + 1);
+
+                const label_t xx = x + static_cast<label_t>(VS::template cx<i>());
+                const label_t yy = y + static_cast<label_t>(VS::template cy<i>());
+                const label_t zz = z + static_cast<label_t>(VS::template cz<i>());
+                const label_t j = device::global3(xx, yy, zz);
+
+                d.g[(i + 1) * size::cells() + n] = phys[i];
+                d.g[i * size::cells() + j] = phys[i + 1];
+            });
+    }
+
+    __global__ void computePhase(LBMFields d, const label_t STEP)
     {
         const label_t x = threadIdx.x + blockIdx.x * blockDim.x;
         const label_t y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -41,11 +79,14 @@ namespace phase
 
         const label_t idx3 = device::global3(x, y, z);
 
+        scalar_t gpop[velocitySet::Q()];
+        phase::esopull::load_g<velocitySet>(d, x, y, z, gpop, STEP);
+
         scalar_t phi = static_cast<scalar_t>(0);
         device::constexpr_for<0, velocitySet::Q()>(
             [&](const auto Q)
             {
-                phi += d.g[Q * size::cells() + idx3];
+                phi += gpop[Q];
             });
 
         d.phi[idx3] = phi;
